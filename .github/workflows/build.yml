@@ -1,0 +1,177 @@
+name: Build
+on: push
+
+jobs:
+  macos:
+    runs-on: [macos-latest]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8.0.192
+          java-package: jdk+fx
+      - name: Fetch conduktor from Gitlab
+        # original JAVA_HOME /Users/runner/hostedtoolcache/jdk+fx/8.0.192/x64
+        #find /Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents -maxdepth 3
+        #cp /Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/MacOS/libjli.dylib 8.0.192/Contents/MacOS
+        #cp /Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Info.plist 8.0.192/Contents
+        #cat /Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Info.plist
+        run: |
+          git clone --depth 1 https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
+          mkdir -p jdk_8.0.192/Contents/{Home,MacOS}
+          cp -R $JAVA_HOME/* jdk_8.0.192/Contents/Home
+          cp /Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Info.plist jdk_8.0.192/Contents
+          cp /Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/MacOS/libjli.dylib jdk_8.0.192/Contents/MacOS
+          sudo mv "$(pwd)/jdk_8.0.192" "/Library/Java/JavaVirtualMachines"
+      - name: Build MacOS Native Installer DMG
+        working-directory: conduktor-monorepo
+        run: JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk_8.0.192/Contents/Home" ./gradlew jfxListBundlers jfxNative --stacktrace --no-daemon -PonlyBundler=dmg --info
+      - name: List installers
+        working-directory: conduktor-monorepo
+        run: ls -lR build/jfx/
+      - name: publish artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: macos
+          path: conduktor-monorepo/build/jfx/native/
+
+  windows:
+    runs-on: [windows-latest]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8.0.192
+          java-package: jdk+fx
+      - name: Fetch conduktor from Gitlab
+        run: |
+          git clone --depth 1 https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
+      - name: Uninstall InnoSetup v6
+        run: choco uninstall innosetup -y -f
+      - name: Install InnoSetup v5
+        run: choco install innosetup -y -f --version 5.6.1
+      - run: echo "::add-path::C:\Program Files (x86)\WiX Toolset v3.11\bin"
+        shell: bash
+      - run: candle.exe /?
+        shell: cmd
+      - run: light.exe /?
+        shell: cmd
+      - name: Build Windows Native Installer MSI
+        working-directory: conduktor-monorepo
+        run: ./gradlew.bat jfxListBundlers jfxNative --stacktrace --no-daemon -PonlyBundler=msi
+      - name: Build Windows Native Installer EXE
+        working-directory: conduktor-monorepo
+        run: ./gradlew.bat jfxNative --stacktrace --no-daemon -PonlyBundler=exe
+      - name: List installers
+        working-directory: conduktor-monorepo
+        shell: bash
+        run: ls -lR build/jfx/
+      - name: publish artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: windows
+          path: conduktor-monorepo/build/jfx/native
+
+  linux:
+    runs-on: [ubuntu-18.04]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8.0.192
+          java-package: jdk+fx
+      - name: Fetch conduktor from Gitlab
+        run: |
+          git clone --depth 1 https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
+      - name: Build Linux Native Installer DEB
+        working-directory: conduktor-monorepo
+        run: ./gradlew jfxListBundlers jfxNative --stacktrace --no-daemon -PonlyBundler=deb
+      - name: Build Linux Native Installer RPM
+        working-directory: conduktor-monorepo
+        run: ./gradlew jfxListBundlers jfxNative --stacktrace --no-daemon -PonlyBundler=rpm
+      - name: List installers
+        working-directory: conduktor-monorepo
+        run: ls -lR build/jfx
+      - name: publish artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: linux
+          path: conduktor-monorepo/build/jfx/native
+
+  release:
+    name: Prepare Github Release
+    runs-on: ubuntu-18.04
+    needs: [linux, windows, macos]
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+
+      - uses: actions/download-artifact@v1
+        with:
+          name: macos
+      - uses: actions/download-artifact@v1
+        with:
+          name: linux
+      - uses: actions/download-artifact@v1
+        with:
+          name: windows
+
+      - name: MacOS .dmg
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./macos/Conduktor-1.4.0.dmg
+          asset_name: Conduktor-1.4.0.dmg
+          asset_content_type: application/x-apple-diskimage
+
+      - name: Windows .msi
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./windows/Conduktor-1.4.0.msi
+          asset_name: Conduktor-1.4.0.msi
+          asset_content_type: application/vnd.microsoft.portable-executable
+
+      - name: Windows .exe
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./windows/Conduktor-1.4.0.exe
+          asset_name: Conduktor-1.4.0.exe
+          asset_content_type: application/x-apple-diskimage
+
+      - name: Linux  .deb
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./linux/conduktor-1.4.0.deb
+          asset_name: Conduktor-1.4.0.deb
+          asset_content_type: vnd.debian.binary-package
+
+      - name: Linux  .rpm
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./linux/conduktor-1.4.0-1.x86_64.rpm
+          asset_name: Conduktor-1.4.0.rpm
+          asset_content_type: application/x-redhat-package-manager
