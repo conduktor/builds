@@ -212,8 +212,8 @@ jobs:
       - name: Build macOS packages
         run: .github/scripts/macos.sh
 
-      - run: mkdir -p macos && mv ${{ env.CDK_APP_NAME }}-${{ env.CDK_VERSION }}.pkg
-        # ${{ env.CDK_APP_NAME }}-${{ env.CDK_VERSION }}.dmg macos
+      - run: mkdir -p macos && mv ${{ env.CDK_APP_NAME }}-${{ env.CDK_VERSION }}.pkg macos
+        # ${{ env.CDK_APP_NAME }}-${{ env.CDK_VERSION }}.dmg
         name: Prepare upload
 
       - name: Upload macOS .pkg & .dmg
