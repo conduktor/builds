@@ -49,9 +49,13 @@ jpackage --name "$CDK_APP_NAME" \
               --input "$CONDUKTOR_DISTRIBUTION_PATH/lib" \
               --main-jar "desktop-$VERSION.jar" \
               --runtime-image "$CUSTOM_JRE_PATH"
+# --mac-sign --mac-signing-key-user-name "developer"  --mac-package-signing-prefix com.myapp
 
-echo "Packaging .dmg"
-jpackage --name "$CDK_APP_NAME" \
+DMG=false
+if $DMG; then
+    echo "Packaging .dmg"
+    echo "The .dmg sucks because: https://github.com/andreyvit/create-dmg/issues/72"
+    jpackage --name "$CDK_APP_NAME" \
               --app-version "$VERSION" \
               --description "$CDK_APP_DESCRIPTION" \
               --type dmg \
@@ -67,3 +71,4 @@ jpackage --name "$CDK_APP_NAME" \
               --input "$CONDUKTOR_DISTRIBUTION_PATH/lib" \
               --main-jar "desktop-$VERSION.jar" \
               --runtime-image "$CUSTOM_JRE_PATH"
+fi

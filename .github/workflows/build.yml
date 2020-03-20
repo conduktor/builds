@@ -7,8 +7,8 @@ on:
 env:
   CDK_APP_NAME: Conduktor
   CDK_APP_DESCRIPTION: A beautiful and fully-featured desktop client for Apache Kafka
-  CDK_COPYRIGHT: © 2019-2020 Conduktor, LLC
-  CDK_VENDOR: Conduktor, LLC
+  CDK_COPYRIGHT: © 2019-2020 Conduktor LLC
+  CDK_VENDOR: Conduktor LLC
   CDK_JLINK_MODULES: java.base,java.se,javafx.web,javafx.media,java.desktop,java.management,java.naming,java.prefs,jdk.zipfs,jdk.unsupported,jdk.unsupported.desktop,jdk.httpserver
 
 ###############################################################################
@@ -212,7 +212,8 @@ jobs:
       - name: Build macOS packages
         run: .github/scripts/macos.sh
 
-      - run: mkdir -p macos && mv ${{ env.CDK_APP_NAME }}-${{ env.CDK_VERSION }}.pkg ${{ env.CDK_APP_NAME }}-${{ env.CDK_VERSION }}.dmg macos
+      - run: mkdir -p macos && mv ${{ env.CDK_APP_NAME }}-${{ env.CDK_VERSION }}.pkg
+        # ${{ env.CDK_APP_NAME }}-${{ env.CDK_VERSION }}.dmg macos
         name: Prepare upload
 
       - name: Upload macOS .pkg & .dmg
@@ -372,15 +373,15 @@ jobs:
           asset_name: Conduktor-macOS-${{ env.CDK_VERSION }}.zip
           asset_content_type: application/zip
 
-      - name: macOS .dmg
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./macos/Conduktor-${{ env.CDK_VERSION }}.dmg
-          asset_name: Conduktor-${{ env.CDK_VERSION }}.dmg
-          asset_content_type: application/x-apple-diskimage
+      # - name: macOS .dmg
+      #   uses: actions/upload-release-asset@v1.0.1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./macos/Conduktor-${{ env.CDK_VERSION }}.dmg
+      #     asset_name: Conduktor-${{ env.CDK_VERSION }}.dmg
+      #     asset_content_type: application/x-apple-diskimage
 
       - name: macOS .pkg
         uses: actions/upload-release-asset@v1.0.1
