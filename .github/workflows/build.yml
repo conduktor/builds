@@ -143,8 +143,7 @@ jobs:
           echo "::set-env name=CDK_VERSION::$VERSION"
           echo "::set-env name=SHA::$SHA"
 
-      - run: du -sh ~/.gradle/caches/*
-        continue-on-error: true
+      - run: rm -rf ~/.gradle/caches/*
       - name: Gradle cache
         uses: actions/cache@v1
         with:
@@ -159,8 +158,6 @@ jobs:
           key: ${{ runner.os }}-wrapperxx-${{ hashFiles('**/*.gradle.kts') }}
           restore-keys: |
             ${{ runner.os }}-wrapperxx-
-      - run: du -sh ~/.gradle/caches/modules-2/*
-        continue-on-error: true
       - name: m2 wrapper cache
         uses: actions/cache@v1
         with:
