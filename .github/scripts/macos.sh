@@ -35,7 +35,7 @@ CUSTOM_JRE_PATH="$(pwd)/$CUSTOM_JRE_NAME"
 # Configure Keychain for signing
 ###############################################################################
 # just to get insights
-xcrun --version -v
+xcrun --version
 xcrun --show-sdk-version
 xcrun --show-sdk-build-version
 
