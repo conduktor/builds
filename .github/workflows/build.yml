@@ -49,7 +49,6 @@ jobs:
           key: ${{ runner.os }}-wrapperx-${{ hashFiles('**/*.gradle.kts') }}
           restore-keys: |
             ${{ runner.os }}-wrapperx-
-      - run: du -sh ~/.gradle/caches/*
 
       - name: build desktop.zip
         working-directory: conduktor-monorepo
@@ -107,7 +106,6 @@ jobs:
           key: ${{ runner.os }}-wrapperx-${{ hashFiles('**/*.gradle.kts') }}
           restore-keys: |
             ${{ runner.os }}-wrapperx-
-      - run: du -sh ~/.gradle/caches/*
 
       - name: build desktop.zip
         shell: bash
