@@ -315,6 +315,8 @@ jobs:
         with:
           name: version
       - run: echo "::set-env name=CDK_VERSION::$(cat version/version.txt)"
+      - run: .github/scripts/release.sh {{ env.CDK_VERSION }})
+        id: create_release_body
 
       - name: Create Release
         id: create_release
@@ -323,8 +325,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.CDK_VERSION }}
-          release_name: Release ${{ env.CDK_VERSION }}
+          release_name: ${{ steps.create_release_body.outputs_name }}
           draft: true
+          body: ${{ steps.create_release_body.outputs.body }}
 
       - uses: actions/download-artifact@v1
         with:
