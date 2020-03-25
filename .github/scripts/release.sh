@@ -24,3 +24,6 @@ NAME="$VERSION ($(date -u "+%Y-%m-%d"))"
 echo "::set-output name=name::$NAME"
 echo "::set-output name=body::$BODY"
 
+CURRENT_TAG=$(git describe --abbrev=0)
+PREVIOUS_TAG=$(git describe --abbrev=0 --tags $(git describe --abbrev=0)^)
+CHANGELOG=$(git log --pretty=%s $PREVIOUS_TAG..$CURRENT_TAG)
