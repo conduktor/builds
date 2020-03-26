@@ -281,22 +281,10 @@ jobs:
         run: |
           git clone --branch ${{ github.event.client_payload.tag }} https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
 
-      - name: "Create Github release"
+      - name: "Config Github release"
         run: ../.github/scripts/release.sh ${{ github.event.client_payload.version }}
         id: create_release_body
         working-directory: conduktor-monorepo
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.event.client_payload.tag }}
-          release_name: ${{ steps.create_release_body.outputs.name }}
-          draft: false
-          prerelease: true
-          body: ${{ steps.create_release_body.outputs.body }}
 
       - uses: actions/download-artifact@v1
         with:
@@ -317,45 +305,17 @@ jobs:
         with:
           name: windows
 
-      - name: Linux .zip
-        uses: actions/upload-release-asset@v1.0.1
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./conduktor-linux/desktop-${{ github.event.client_payload.version }}.zip
-          asset_name: Conduktor-Linux-${{ github.event.client_payload.version }}.zip
-          asset_content_type: application/zip
-
-      - name: Windows .zip
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./conduktor-windows/desktop-${{ github.event.client_payload.version }}.zip
-          asset_name: Conduktor-Windows-${{ github.event.client_payload.version }}.zip
-          asset_content_type: application/zip
-
-      - name: Upload macOS .zip
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./conduktor-macos/desktop-${{ github.event.client_payload.version }}.zip
-          asset_name: Conduktor-macOS-${{ github.event.client_payload.version }}.zip
-          asset_content_type: application/zip
-
-      - name: Upload macOS .dmg
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./macos/Conduktor-${{ github.event.client_payload.version }}.dmg
-          asset_name: Conduktor-${{ github.event.client_payload.version }}.dmg
-          asset_content_type: application/x-apple-diskimage
+          tag_name: ${{ github.event.client_payload.tag }}
+          release_name: ${{ steps.create_release_body.outputs.name }}
+          draft: false
+          prerelease: false
+          body: ${{ steps.create_release_body.outputs.body }}
 
       - name: Upload macOS .pkg
         uses: actions/upload-release-asset@v1.0.1
@@ -377,6 +337,16 @@ jobs:
           asset_name: Conduktor-${{ github.event.client_payload.version }}.msi
           asset_content_type: application/vnd.microsoft.portable-executable
 
+      - name: Upload macOS .dmg
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./macos/Conduktor-${{ github.event.client_payload.version }}.dmg
+          asset_name: Conduktor-${{ github.event.client_payload.version }}.dmg
+          asset_content_type: application/x-apple-diskimage
+
       - name: Upload Windows .exe
         uses: actions/upload-release-asset@v1.0.1
         env:
@@ -397,6 +367,36 @@ jobs:
           asset_name: Conduktor-${{ github.event.client_payload.version }}.deb
           asset_content_type: vnd.debian.binary-package
 
+      - name: Linux .zip
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./conduktor-linux/desktop-${{ github.event.client_payload.version }}.zip
+          asset_name: Conduktor-linux-${{ github.event.client_payload.version }}.zip
+          asset_content_type: application/zip
+
+      - name: Windows .zip
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./conduktor-windows/desktop-${{ github.event.client_payload.version }}.zip
+          asset_name: Conduktor-win-${{ github.event.client_payload.version }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload macOS .zip
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./conduktor-macos/desktop-${{ github.event.client_payload.version }}.zip
+          asset_name: Conduktor-macOS-${{ github.event.client_payload.version }}.zip
+          asset_content_type: application/zip
+
       - name: Upload Linux  .rpm
         uses: actions/upload-release-asset@v1.0.1
         env:
@@ -406,3 +406,6 @@ jobs:
           asset_path: ./linux/Conduktor-${{ github.event.client_payload.version }}.rpm
           asset_name: Conduktor-${{ github.event.client_payload.version }}.rpm
           asset_content_type: application/x-redhat-package-manager
+
+      - name: Update links
+        run: .github/scripts/update-links.sh ${{ secrets.REBRANDLY_TOKEN }} ${{ github.event.client_payload.version }}
