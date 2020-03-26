@@ -309,13 +309,18 @@ jobs:
     needs: [linux, windows, macos]
     steps:
       - uses: actions/checkout@v2
+      - name: Fetch conduktor from Gitlab
+        run: |
+          git clone --branch feat-update4j https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
+
       - name: Download built distribution
         uses: actions/download-artifact@v1
         with:
           name: version
       - run: echo "::set-env name=CDK_VERSION::$(cat version/version.txt)"
-      - run: .github/scripts/release.sh {{ env.CDK_VERSION }}
+      - run: ../.github/scripts/release.sh {{ env.CDK_VERSION }}
         id: create_release_body
+        working-directory: conduktor-monorepo
 
       - name: Create Release
         id: create_release
