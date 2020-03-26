@@ -237,8 +237,8 @@ jobs:
         shell: bash
         run: |
           mkdir -p windows
-          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.exe linux
-          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.msi linux
+          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.exe windows
+          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.msi windows
 
       - name: Upload Windows .msi and .exe
         uses: actions/upload-artifact@v1
