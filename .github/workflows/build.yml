@@ -271,7 +271,8 @@ jobs:
         with:
           tag_name: ${{ github.event.client_payload.tag }}
           release_name: ${{ steps.create_release_body.outputs.name }}
-          draft: true
+          draft: false
+          prerelease: true
           body: ${{ steps.create_release_body.outputs.body }}
 
       - uses: actions/download-artifact@v1
