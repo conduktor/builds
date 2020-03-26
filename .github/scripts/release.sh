@@ -12,16 +12,6 @@ function print_link {
 VERSION="$1"
 BASE_URL="https://github.com/conduktor/builds/releases/${VERSION}"
 
-BODY=$(cat <<-EOF
-### Conduktor Desktop v${VERSION}
-The download links can be found below.
-
-Changes:
-
-- foo
-- bar
-EOF
-)
 
 # See https://github.community/t5/GitHub-Actions/set-output-Truncates-Multiline-Strings/m-p/38372#M3322
 BODY="${BODY//'%'/'%25'}"
@@ -31,9 +21,20 @@ BODY="${BODY//$'\r'/'%0D'}"
 # $(print_link "${BASE_URL}/conduktor-desktop-${VERSION}.msi")
 NAME="$VERSION ($(date -u "+%Y-%m-%d"))"
 
-echo "::set-output name=name::$NAME"
-echo "::set-output name=body::$BODY"
-
 CURRENT_TAG=$(git describe --abbrev=0)
 PREVIOUS_TAG=$(git describe --abbrev=0 --tags $(git describe --abbrev=0)^)
-CHANGELOG=$(git log --pretty=%s $PREVIOUS_TAG..$CURRENT_TAG)
+CHANGELOG=$(git log --no-merges --pretty=%s "$PREVIOUS_TAG".."$CURRENT_TAG" | grep -v "skip ci" | sed -e 's/^/- /')
+
+# These changes WILL appear in Conduktor Desktop UI
+# This should contain only text context-independent (no "Download links below" for instance)
+BODY=$(cat <<-EOF
+### Conduktor Desktop v${VERSION}
+
+Changes:
+
+$CHANGELOG
+EOF
+)
+
+echo "::set-output name=name::$NAME"
+echo "::set-output name=body::$BODY"
