@@ -3,14 +3,12 @@
 set -o errexit -o pipefail -o nounset
 IFS=$'\t\n'
 
-CURRENT_DIR=$(pwd)
-DEPLOY_RESOURCES_PATH=".github/resources"
-ENTITLEMENTS_PATH="$DEPLOY_RESOURCES_PATH/Conduktor.entitlements"
-FX=https://gluonhq.com/download/javafx-14-jmods-mac
+FX="https://gluonhq.com/download/javafx-14-jmods-mac"
 
+CURRENT_DIR=$(pwd)
 echo "Current dir: $CURRENT_DIR"
 
-VERSION="$CDK_VERSION"
+VERSION="$1"
 echo "Will build Conduktor $VERSION"
 
 ########################################################################################################################
@@ -18,18 +16,18 @@ echo "Will build Conduktor $VERSION"
 echo "Downloading JavaFX Jmods..."
 curl -sLO $FX
 unzip -oq javafx-*-jmods-mac
-FX_NAME=$(ls -d javafx-jmods-*)
-FX_MODS_PATH="$(pwd)/$FX_NAME/"
+FX_MODS_PATH="./javafx-jmods-14"
 
 CONDUKTOR_DISTRIBUTION_PATH="$(pwd)/desktop-$VERSION"
 
 echo "Building custom JRE..."
-CUSTOM_JRE_NAME=runtime
+CUSTOM_JRE_NAME="runtime"
 jlink --module-path "$FX_MODS_PATH" \
     --add-modules "$CDK_JLINK_MODULES" \
-    --bind-services --output $CUSTOM_JRE_NAME \
+    --bind-services --output "$CUSTOM_JRE_NAME" \
     --strip-debug --compress 2 --no-header-files --no-man-pages --strip-native-commands
-CUSTOM_JRE_PATH="$(pwd)/$CUSTOM_JRE_NAME"
+
+DEPLOY_RESOURCES_PATH=".github/resources"
 
 ###############################################################################
 # Configure Keychain for signing
@@ -71,25 +69,26 @@ if  [ "$IDENTITY_PASSPHRASE" != "" ] && [ "$IDENTITY_P12_B64" != "" ]; then
               --dest . \
               --input "$CONDUKTOR_DISTRIBUTION_PATH/lib" \
               --main-jar "desktop-$VERSION.jar" \
-              --runtime-image "$CUSTOM_JRE_PATH"
+              --runtime-image "$CUSTOM_JRE_NAME"
 
   # let's sign it
   APP="$CDK_APP_NAME.app"
-	IDENTITY="Developer ID Application: Conduktor"
+  IDENTITY="Developer ID Application: Conduktor"
+  ENTITLEMENTS_PATH="$DEPLOY_RESOURCES_PATH/Conduktor.entitlements"
 
-	echo "Signing all the content..."
+  echo "Signing all the content..."
   codesign --force --strict --timestamp --verbose=4 --prefix "io.conduktor." \
            --deep \
-					 --entitlements "$ENTITLEMENTS_PATH" \
+           --entitlements "$ENTITLEMENTS_PATH" \
            --options runtime \
            --sign "$IDENTITY"
            "$APP"
 
   codesign -dvvvv "$APP"
 
-	APP_SIGNED_NAME="$APP_NAME-signed"
-	echo "Finishing packaging with signed content..."
-	jpackage --name "$APP_SIGNED_NAME" \
+  APP_SIGNED_NAME="$APP_NAME-signed"
+  echo "Finishing packaging with signed content..."
+  jpackage --name "$APP_SIGNED_NAME" \
               --app-version "$VERSION" \
               --description "$CDK_APP_DESCRIPTION" \
               --type dmg \
@@ -101,50 +100,50 @@ if  [ "$IDENTITY_PASSPHRASE" != "" ] && [ "$IDENTITY_P12_B64" != "" ]; then
               --verbose \
               --dest .
 
-	echo "Signing the package..."
-	DMG_NAME="$APP_SIGNED_NAME-$VERSION.dmg"
-	codesign --strict --timestamp --verbose=4 --prefix "io.conduktor." \
-						--entitlements "$ENTITLEMENTS_PATH" \
-						--options runtime \
-						--sign "$IDENTITY" \
-						"$DMG_NAME"
+  echo "Signing the package..."
+  DMG_NAME="$APP_SIGNED_NAME-$VERSION.dmg"
+  codesign --strict --timestamp --verbose=4 --prefix "io.conduktor." \
+            --entitlements "$ENTITLEMENTS_PATH" \
+            --options runtime \
+            --sign "$IDENTITY" \
+            "$DMG_NAME"
 
-	NOTORIZATION=false
+  NOTORIZATION=false
 
-	if $NOTORIZATION; then
+  if $NOTORIZATION; then
 
-		USER="user"
-		PASSWD="pwd"
+    USER="user"
+    PASSWD="pwd"
 
-		xcrun altool \
-			--notarize-app \
-			--primary-bundle-id "io.conduktor" \
-			--username "$USER" --password "$PASSWD" \
-			--file "$DMG_NAME" \
-			--output-format xml > upload_result.plist
+    xcrun altool \
+      --notarize-app \
+      --primary-bundle-id "io.conduktor" \
+      --username "$USER" --password "$PASSWD" \
+      --file "$DMG_NAME" \
+      --output-format xml > upload_result.plist
 
-			request_id=$(/usr/libexec/PlistBuddy -c "Print :notarization-upload:RequestUUID" upload_result.plist)
+      request_id=$(/usr/libexec/PlistBuddy -c "Print :notarization-upload:RequestUUID" upload_result.plist)
 
-			# Wait until the request is done processing.
-			while true; do
-					sleep 20
-					xcrun altool --notarization-info "$request_id" \
-								--username "$USER" --password "$PASSWD" \
-								--output-format xml > status.plist
-					if [ "$(/usr/libexec/PlistBuddy -c "Print :notarization-info:Status" status.plist)" != "in progress" ]; then
-							break;
-					fi
-					echo "$(date) ...still waiting for notarization to finish..."
-			done
+      # Wait until the request is done processing.
+      while true; do
+          sleep 20
+          xcrun altool --notarization-info "$request_id" \
+                --username "$USER" --password "$PASSWD" \
+                --output-format xml > status.plist
+          if [ "$(/usr/libexec/PlistBuddy -c "Print :notarization-info:Status" status.plist)" != "in progress" ]; then
+              break;
+          fi
+          echo "$(date) ...still waiting for notarization to finish..."
+      done
 
-			# See if notarization succeeded, and if so, staple the ticket to the disk image.
-			if [ "$(/usr/libexec/PlistBuddy -c "Print :notarization-info:Status" status.plist)" = "success" ]; then
-					echo "Notarization succeeded, stapling receipt to disk image"
-					xcrun stapler staple "$DMG_NAME"
-			else
-					false;
-			fi
-	fi
+      # See if notarization succeeded, and if so, staple the ticket to the disk image.
+      if [ "$(/usr/libexec/PlistBuddy -c "Print :notarization-info:Status" status.plist)" = "success" ]; then
+          echo "Notarization succeeded, stapling receipt to disk image"
+          xcrun stapler staple "$DMG_NAME"
+      else
+          false;
+      fi
+  fi
 
 fi
 ###############################################################################
@@ -166,7 +165,7 @@ jpackage --name "$CDK_APP_NAME" \
               --dest . \
               --input "$CONDUKTOR_DISTRIBUTION_PATH/lib" \
               --main-jar "desktop-$VERSION.jar" \
-              --runtime-image "$CUSTOM_JRE_PATH"
+              --runtime-image "$CUSTOM_JRE_NAME"
 
 DMG=true
 if $DMG; then
@@ -187,5 +186,5 @@ if $DMG; then
               --dest . \
               --input "$CONDUKTOR_DISTRIBUTION_PATH/lib" \
               --main-jar "desktop-$VERSION.jar" \
-              --runtime-image "$CUSTOM_JRE_PATH"
+              --runtime-image "$CUSTOM_JRE_NAME"
 fi

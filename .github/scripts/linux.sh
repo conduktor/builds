@@ -3,34 +3,34 @@
 set -o errexit -o pipefail -o nounset
 IFS=$'\t\n'
 
-FX=https://gluonhq.com/download/javafx-14-jmods-linux # Linux !
-
+FX="https://gluonhq.com/download/javafx-14-jmods-linux"
 
 CURRENT_DIR=$(pwd)
 echo "Current dir: $CURRENT_DIR"
 
-VERSION="$CDK_VERSION"
+VERSION="$1"
 echo "Will build Conduktor $VERSION"
 
 ########################################################################################################################
 
 echo "Downloading JavaFX Jmods..."
 curl -sLO $FX
-unzip -oq javafx-*-jmods-*
-FX_NAME=$(ls -d javafx-jmods-*)
-FX_MODS_PATH="$(pwd)/$FX_NAME/"
+unzip -oq javafx-*-jmods-linux
+FX_MODS_PATH="./javafx-jmods-14"
 
 CONDUKTOR_DISTRIBUTION_PATH="$(pwd)/desktop-$VERSION"
 
 echo "Building custom JRE..."
-CUSTOM_JRE_NAME=runtime
+CUSTOM_JRE_NAME="runtime"
 jlink --module-path "$FX_MODS_PATH" \
     --add-modules "$CDK_JLINK_MODULES" \
-    --bind-services --output $CUSTOM_JRE_NAME \
+    --bind-services --output "$CUSTOM_JRE_NAME" \
     --strip-debug --compress 2 --no-header-files --no-man-pages --strip-native-commands
-CUSTOM_JRE_PATH="$(pwd)/$CUSTOM_JRE_NAME"
 
 DEPLOY_RESOURCES_PATH=".github/resources"
+
+###############################################################################
+
 echo "Packaging .deb"
 jpackage --name "$CDK_APP_NAME" \
               --app-version "$VERSION" \
@@ -48,7 +48,7 @@ jpackage --name "$CDK_APP_NAME" \
               --dest . \
               --input "$CONDUKTOR_DISTRIBUTION_PATH/lib" \
               --main-jar "desktop-$VERSION.jar" \
-              --runtime-image "$CUSTOM_JRE_PATH"
+              --runtime-image "$CUSTOM_JRE_NAME"
 mv conduktor_$VERSION*.deb "Conduktor-$VERSION.deb"
 
 echo "Packaging .rpm"
@@ -67,5 +67,5 @@ jpackage --name "$CDK_APP_NAME" \
               --dest . \
               --input "$CONDUKTOR_DISTRIBUTION_PATH/lib" \
               --main-jar "desktop-$VERSION.jar" \
-              --runtime-image "$CUSTOM_JRE_PATH"
+              --runtime-image "$CUSTOM_JRE_NAME"
 mv conduktor-$VERSION*.rpm "Conduktor-$VERSION.rpm"

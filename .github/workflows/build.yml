@@ -1,8 +1,7 @@
 name: Build
 on:
-  push:
-    branches:
-      - master
+  repository_dispatch:
+    types: [release]
 
 env:
   CDK_APP_NAME: Conduktor
@@ -10,6 +9,7 @@ env:
   CDK_COPYRIGHT: © 2019-2020 Conduktor LLC
   CDK_VENDOR: Conduktor LLC
   CDK_JLINK_MODULES: java.base,java.se,javafx.web,javafx.media,java.desktop,java.management,java.naming,java.prefs,jdk.zipfs,jdk.unsupported,jdk.unsupported.desktop,jdk.httpserver
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
 ###############################################################################
 
@@ -25,15 +25,7 @@ jobs:
           java-version: openjdk14
       - name: Fetch conduktor from Gitlab
         run: |
-          git clone --single-branch --branch feat-update4j --depth 1 https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
-          (cd conduktor-monorepo && git log -1)
-      - name: Version
-        working-directory: conduktor-monorepo
-        run: |
-          VERSION=$(grep version gradle.properties | cut -d'=' -f2)
-          SHA=$(git rev-parse --short HEAD)
-          echo "::set-env name=CDK_VERSION::$VERSION"
-          echo "::set-env name=SHA::$SHA"
+          git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
 
       - name: Gradle cache
         uses: actions/cache@v1
@@ -52,22 +44,13 @@ jobs:
 
       - name: build desktop.zip
         working-directory: conduktor-monorepo
-        env:
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
         run: ./gradlew --build-cache --stacktrace build
 
       - name: publish artifact
         uses: actions/upload-artifact@v1
         with:
           name: conduktor-linux
-          path: "./conduktor-monorepo/desktop/build/distributions/desktop-${{ env.CDK_VERSION }}.zip"
-
-      - run: echo ${{ env.CDK_VERSION }} > version.txt
-      - name: publish artifact
-        uses: actions/upload-artifact@v1
-        with:
-          name: version
-          path: "version.txt"
+          path: "./conduktor-monorepo/desktop/build/distributions/desktop-${{ github.event.client_payload.version }}.zip"
 
   zip-windows:
     name: build conduktor.zip for windows
@@ -80,17 +63,7 @@ jobs:
           java-version: openjdk14
       - name: Fetch conduktor from Gitlab
         run: |
-          git clone --single-branch --branch feat-update4j --depth 1 https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
-          cd conduktor-monorepo
-          git log -1
-      - name: Version
-        working-directory: conduktor-monorepo
-        shell: bash
-        run: |
-          VERSION=$(grep version gradle.properties | cut -d'=' -f2)
-          SHA=$(git rev-parse --short HEAD)
-          echo "::set-env name=CDK_VERSION::$VERSION"
-          echo "::set-env name=SHA::$SHA"
+          git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
 
       - name: Gradle cache
         uses: actions/cache@v1
@@ -110,15 +83,13 @@ jobs:
       - name: build desktop.zip
         shell: bash
         working-directory: conduktor-monorepo
-        env:
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
         run: ./gradlew --build-cache --stacktrace build -x test
 
       - name: publish artifact
         uses: actions/upload-artifact@v1
         with:
           name: conduktor-windows
-          path: "./conduktor-monorepo/desktop/build/distributions/desktop-${{ env.CDK_VERSION }}.zip"
+          path: "./conduktor-monorepo/desktop/build/distributions/desktop-${{ github.event.client_payload.version }}.zip"
 
   zip-macos:
     name: build conduktor.zip for macos
@@ -131,17 +102,10 @@ jobs:
           java-version: openjdk14
       - name: Fetch conduktor from Gitlab
         run: |
-          git clone --single-branch --branch feat-update4j --depth 1 https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
-          (cd conduktor-monorepo && git log -1)
-      - name: Version
-        working-directory: conduktor-monorepo
-        run: |
-          VERSION=$(grep version gradle.properties | cut -d'=' -f2)
-          SHA=$(git rev-parse --short HEAD)
-          echo "::set-env name=CDK_VERSION::$VERSION"
-          echo "::set-env name=SHA::$SHA"
+          git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
 
-      - run: rm -rf ~/.gradle/caches/*
+      - name: Clean up existing cache
+        run: rm -rf ~/.gradle/caches/*
       - name: Gradle cache
         uses: actions/cache@v1
         with:
@@ -162,29 +126,21 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2
 
-      - run: env
-      - run: |
+      - name: "Build tornadofx snapshot"
+        run: |
+          env
           git clone --single-branch --branch jdk10 --depth 1 https://github.com/edvin/tornadofx
           cd tornadofx && mvn install -Dmaven.test.skip=true
 
       - name: build desktop.zip
         working-directory: conduktor-monorepo
-        env:
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
         run: ./gradlew --build-cache --stacktrace build
 
       - name: publish artifact
         uses: actions/upload-artifact@v1
         with:
           name: conduktor-macos
-          path: "./conduktor-monorepo/desktop/build/distributions/desktop-${{ env.CDK_VERSION }}.zip"
-
-      - run: echo ${{ env.CDK_VERSION }} > version.txt
-      - name: publish artifact
-        uses: actions/upload-artifact@v1
-        with:
-          name: version
-          path: "version.txt"
+          path: "./conduktor-monorepo/desktop/build/distributions/desktop-${{ github.event.client_payload.version }}.zip"
 
   ###############################################################################
 
@@ -201,20 +157,18 @@ jobs:
       - name: Download built distribution
         uses: actions/download-artifact@v1
         with:
-          name: version
-      - run: echo "::set-env name=CDK_VERSION::$(cat version/version.txt)"
-
-      - name: Download built distribution
-        uses: actions/download-artifact@v1
-        with:
           name: conduktor-macos
-      - run: unzip conduktor-macos/desktop-${{ env.CDK_VERSION }}.zip
 
       - name: Build macOS packages
-        run: .github/scripts/macos.sh
+        run: |
+          unzip conduktor-macos/desktop-${{ github.event.client_payload.version }}.zip
+          .github/scripts/macos.sh ${{ github.event.client_payload.version }}
 
-      - run: mkdir -p macos && mv ${{ env.CDK_APP_NAME }}-${{ env.CDK_VERSION }}.pkg ${{ env.CDK_APP_NAME }}-${{ env.CDK_VERSION }}.dmg macos
-        name: Prepare upload
+      - name: Prepare upload
+        run: |
+          mkdir -p macos
+          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.pkg macos
+          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.dmg macos
 
       - name: Upload macOS .pkg & .dmg
         uses: actions/upload-artifact@v1
@@ -237,20 +191,18 @@ jobs:
       - name: Download built distribution
         uses: actions/download-artifact@v1
         with:
-          name: version
-      - run: echo "::set-env name=CDK_VERSION::$(cat version/version.txt)"
-
-      - name: Download built distribution
-        uses: actions/download-artifact@v1
-        with:
           name: conduktor-linux
-      - run: unzip conduktor-linux/desktop-${{ env.CDK_VERSION }}.zip
 
       - name: Build Linux packages
-        run: .github/scripts/linux.sh
+        run: |
+          unzip conduktor-linux/desktop-${{ github.event.client_payload.version }}.zip
+          .github/scripts/linux.sh ${{ github.event.client_payload.version }}
 
-      - run: mkdir -p linux && mv ${{ env.CDK_APP_NAME }}-${{ env.CDK_VERSION }}.deb ${{ env.CDK_APP_NAME }}-${{ env.CDK_VERSION }}.rpm linux
-        name: Prepare upload
+      - name: Prepare upload
+        run: |
+          mkdir -p linux
+          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.deb linux
+          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.rpm linux
 
       - name: Upload Linux .deb & .rpm
         uses: actions/upload-artifact@v1
@@ -273,27 +225,20 @@ jobs:
       - name: Download built distribution
         uses: actions/download-artifact@v1
         with:
-          name: version
-      - run: echo "::set-env name=CDK_VERSION::$(cat version/version.txt)"
-        shell: bash
-
-      - name: Download built distribution
-        uses: actions/download-artifact@v1
-        with:
           name: conduktor-windows
-      - run: unzip conduktor-windows/desktop-${{ env.CDK_VERSION }}.zip
-        shell: bash
 
-      - name: Build windows msi with sh
+      - name: Build Windows packages
         shell: bash
-        run: ./.github/scripts/windows.sh
+        run: |
+          unzip conduktor-windows/desktop-${{ github.event.client_payload.version }}.zip
+          .github/scripts/windows.sh ${{ github.event.client_payload.version }}
 
-      # - name: Build windows msi
-      #   run: .\.github\scripts\windows.ps1
-
-      - run: mkdir -p windows && mv ${{ env.CDK_APP_NAME }}-${{ env.CDK_VERSION }}.msi ${{ env.CDK_APP_NAME }}-${{ env.CDK_VERSION }}.exe windows
+      - name: Prepare upload
         shell: bash
-        name: Prepare upload
+        run: |
+          mkdir -p windows
+          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.exe linux
+          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.msi linux
 
       - name: Upload Windows .msi and .exe
         uses: actions/upload-artifact@v1
@@ -311,14 +256,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Fetch conduktor from Gitlab
         run: |
-          git clone --branch feat-update4j https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
+          git clone --branch ${{ github.event.client_payload.tag }} https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
 
-      - name: Download built distribution
-        uses: actions/download-artifact@v1
-        with:
-          name: version
-      - run: echo "::set-env name=CDK_VERSION::$(cat version/version.txt)"
-      - run: ../.github/scripts/release.sh ${{ env.CDK_VERSION }}
+      - name: "Create Github release"
+        run: ../.github/scripts/release.sh ${{ github.event.client_payload.version }}
         id: create_release_body
         working-directory: conduktor-monorepo
 
@@ -328,7 +269,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.CDK_VERSION }}
+          tag_name: ${{ github.event.client_payload.tag }}
           release_name: ${{ steps.create_release_body.outputs.name }}
           draft: true
           body: ${{ steps.create_release_body.outputs.body }}
@@ -358,8 +299,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./conduktor-linux/desktop-${{ env.CDK_VERSION }}.zip
-          asset_name: Conduktor-Linux-${{ env.CDK_VERSION }}.zip
+          asset_path: ./conduktor-linux/desktop-${{ github.event.client_payload.version }}.zip
+          asset_name: Conduktor-Linux-${{ github.event.client_payload.version }}.zip
           asset_content_type: application/zip
 
       - name: Windows .zip
@@ -368,76 +309,76 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./conduktor-windows/desktop-${{ env.CDK_VERSION }}.zip
-          asset_name: Conduktor-Windows-${{ env.CDK_VERSION }}.zip
+          asset_path: ./conduktor-windows/desktop-${{ github.event.client_payload.version }}.zip
+          asset_name: Conduktor-Windows-${{ github.event.client_payload.version }}.zip
           asset_content_type: application/zip
 
-      - name: macOS .zip
+      - name: Upload macOS .zip
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./conduktor-macos/desktop-${{ env.CDK_VERSION }}.zip
-          asset_name: Conduktor-macOS-${{ env.CDK_VERSION }}.zip
+          asset_path: ./conduktor-macos/desktop-${{ github.event.client_payload.version }}.zip
+          asset_name: Conduktor-macOS-${{ github.event.client_payload.version }}.zip
           asset_content_type: application/zip
 
-      - name: macOS .dmg
+      - name: Upload macOS .dmg
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./macos/Conduktor-${{ env.CDK_VERSION }}.dmg
-          asset_name: Conduktor-${{ env.CDK_VERSION }}.dmg
+          asset_path: ./macos/Conduktor-${{ github.event.client_payload.version }}.dmg
+          asset_name: Conduktor-${{ github.event.client_payload.version }}.dmg
           asset_content_type: application/x-apple-diskimage
 
-      - name: macOS .pkg
+      - name: Upload macOS .pkg
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./macos/Conduktor-${{ env.CDK_VERSION }}.pkg
-          asset_name: Conduktor-${{ env.CDK_VERSION }}.pkg
+          asset_path: ./macos/Conduktor-${{ github.event.client_payload.version }}.pkg
+          asset_name: Conduktor-${{ github.event.client_payload.version }}.pkg
           asset_content_type: application/x-newton-compatible-pkg
 
-      - name: Windows .msi
+      - name: Upload Windows .msi
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./windows/Conduktor-${{ env.CDK_VERSION }}.msi
-          asset_name: Conduktor-${{ env.CDK_VERSION }}.msi
+          asset_path: ./windows/Conduktor-${{ github.event.client_payload.version }}.msi
+          asset_name: Conduktor-${{ github.event.client_payload.version }}.msi
           asset_content_type: application/vnd.microsoft.portable-executable
 
-      - name: Windows .exe
+      - name: Upload Windows .exe
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./windows/Conduktor-${{ env.CDK_VERSION }}.exe
-          asset_name: Conduktor-${{ env.CDK_VERSION }}.exe
+          asset_path: ./windows/Conduktor-${{ github.event.client_payload.version }}.exe
+          asset_name: Conduktor-${{ github.event.client_payload.version }}.exe
           asset_content_type: application/x-apple-diskimage
 
-      - name: Linux  .deb
+      - name: Upload Linux  .deb
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./linux/Conduktor-${{ env.CDK_VERSION }}.deb
-          asset_name: Conduktor-${{ env.CDK_VERSION }}.deb
+          asset_path: ./linux/Conduktor-${{ github.event.client_payload.version }}.deb
+          asset_name: Conduktor-${{ github.event.client_payload.version }}.deb
           asset_content_type: vnd.debian.binary-package
 
-      - name: Linux  .rpm
+      - name: Upload Linux  .rpm
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./linux/Conduktor-${{ env.CDK_VERSION }}.rpm
-          asset_name: Conduktor-${{ env.CDK_VERSION }}.rpm
+          asset_path: ./linux/Conduktor-${{ github.event.client_payload.version }}.rpm
+          asset_name: Conduktor-${{ github.event.client_payload.version }}.rpm
           asset_content_type: application/x-redhat-package-manager
