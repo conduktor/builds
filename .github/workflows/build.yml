@@ -318,7 +318,7 @@ jobs:
         with:
           name: version
       - run: echo "::set-env name=CDK_VERSION::$(cat version/version.txt)"
-      - run: ../.github/scripts/release.sh {{ env.CDK_VERSION }}
+      - run: ../.github/scripts/release.sh ${{ env.CDK_VERSION }}
         id: create_release_body
         working-directory: conduktor-monorepo
 
