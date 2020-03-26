@@ -15,7 +15,7 @@ BASE_URL="https://github.com/conduktor/builds/releases/${VERSION}"
 # $(print_link "${BASE_URL}/conduktor-desktop-${VERSION}.msi")
 NAME="$VERSION ($(date -u "+%Y-%m-%d"))"
 
-CURRENT_TAG=$(git describe --abbrev=0)
+CURRENT_TAG=$(git describe --abbrev=0 --tags)
 PREVIOUS_TAG=$(git describe --abbrev=0 --tags $(git describe --abbrev=0)^)
 CHANGELOG=$(git log --no-merges --pretty=%s "$PREVIOUS_TAG".."$CURRENT_TAG" | grep -v "skip ci" | sed -e 's/^/- /')
 
