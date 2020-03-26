@@ -41,6 +41,17 @@ jobs:
           key: ${{ runner.os }}-wrapperx-${{ hashFiles('**/*.gradle.kts') }}
           restore-keys: |
             ${{ runner.os }}-wrapperx-
+      - name: m2 wrapper cache
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2
+
+      - name: "Build tornadofx snapshot"
+        run: |
+          env
+          git clone --single-branch --branch jdk10 --depth 1 https://github.com/edvin/tornadofx
+          cd tornadofx && mvn install -Dmaven.test.skip=true
 
       - name: build desktop.zip
         working-directory: conduktor-monorepo
@@ -79,6 +90,17 @@ jobs:
           key: ${{ runner.os }}-wrapperx-${{ hashFiles('**/*.gradle.kts') }}
           restore-keys: |
             ${{ runner.os }}-wrapperx-
+      - name: m2 wrapper cache
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2
+
+      - name: "Build tornadofx snapshot"
+        run: |
+          env
+          git clone --single-branch --branch jdk10 --depth 1 https://github.com/edvin/tornadofx
+          cd tornadofx && mvn install -Dmaven.test.skip=true
 
       - name: build desktop.zip
         shell: bash
