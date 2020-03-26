@@ -44,7 +44,7 @@ jobs:
 
       - name: build desktop.zip
         working-directory: conduktor-monorepo
-        run: ./gradlew --build-cache --stacktrace build
+        run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace build
 
       - name: publish artifact
         uses: actions/upload-artifact@v1
@@ -83,7 +83,7 @@ jobs:
       - name: build desktop.zip
         shell: bash
         working-directory: conduktor-monorepo
-        run: ./gradlew --build-cache --stacktrace build -x test
+        run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace build -x test
 
       - name: publish artifact
         uses: actions/upload-artifact@v1
@@ -134,7 +134,7 @@ jobs:
 
       - name: build desktop.zip
         working-directory: conduktor-monorepo
-        run: ./gradlew --build-cache --stacktrace build
+        run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace build
 
       - name: publish artifact
         uses: actions/upload-artifact@v1
