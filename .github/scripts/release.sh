@@ -12,12 +12,6 @@ function print_link {
 VERSION="$1"
 BASE_URL="https://github.com/conduktor/builds/releases/${VERSION}"
 
-
-# See https://github.community/t5/GitHub-Actions/set-output-Truncates-Multiline-Strings/m-p/38372#M3322
-BODY="${BODY//'%'/'%25'}"
-BODY="${BODY//$'\n'/'%0A'}"
-BODY="${BODY//$'\r'/'%0D'}"
-
 # $(print_link "${BASE_URL}/conduktor-desktop-${VERSION}.msi")
 NAME="$VERSION ($(date -u "+%Y-%m-%d"))"
 
@@ -35,6 +29,10 @@ Changes:
 $CHANGELOG
 EOF
 )
+# See https://github.community/t5/GitHub-Actions/set-output-Truncates-Multiline-Strings/m-p/38372#M3322
+BODY="${BODY//'%'/'%25'}"
+BODY="${BODY//$'\n'/'%0A'}"
+BODY="${BODY//$'\r'/'%0D'}"
 
 echo "::set-output name=name::$NAME"
 echo "::set-output name=body::$BODY"
