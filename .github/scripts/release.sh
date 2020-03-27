@@ -17,7 +17,7 @@ NAME="$VERSION ($(date -u "+%Y-%m-%d"))"
 
 CURRENT_TAG=$(git describe --abbrev=0 --tags)
 PREVIOUS_TAG=$(git describe --abbrev=0 --tags $(git describe --abbrev=0)^)
-CHANGELOG=$(git log --no-merges --pretty=%s "$PREVIOUS_TAG".."$CURRENT_TAG" | grep -v "skip ci" | sed -e 's/^/- /')
+CHANGELOG=$(git log --no-merges --pretty=%s "$PREVIOUS_TAG".."$CURRENT_TAG" | grep -v "skip ci" | grep -v "skip changelog" | sed -e 's/^/- /')
 
 # These changes WILL appear in Conduktor Desktop UI
 # This should contain only text context-independent (no "Download links below" for instance)
