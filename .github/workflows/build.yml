@@ -429,4 +429,4 @@ jobs:
           ./s3cmd-2.0.2/s3cmd --access_key="$DO_KEY" --secret_key="$DO_SECRET" --host sfo2.digitaloceanspaces.com --host-bucket="%(bucket)s.sfo2.digitaloceanspaces.com" sync all s3://conduktor/releases/all --acl-public
           ./s3cmd-2.0.2/s3cmd --access_key="$DO_KEY" --secret_key="$DO_SECRET" --host sfo2.digitaloceanspaces.com --host-bucket="%(bucket)s.sfo2.digitaloceanspaces.com" sync latest s3://conduktor/releases/latest --acl-public
           ./s3cmd-2.0.2/s3cmd --access_key="$DO_KEY" --secret_key="$DO_SECRET" --host sfo2.digitaloceanspaces.com --host-bucket="%(bucket)s.sfo2.digitaloceanspaces.com" put ${{ github.event.client_payload.version }}.md s3://conduktor/releases/ --acl-public
-          ./doctl compute cdn flush --access-token $DO_TOKEN bb2c53d5-fa0e-4880-a528-2fab6219f6bf --files [releases/latest]
+          ./doctl compute cdn flush --access-token $DO_TOKEN f219a472-61e3-40ab-b762-8588a06055d2 --files [releases/latest]
