@@ -13,7 +13,8 @@ VERSION="$1"
 BASE_URL="https://github.com/conduktor/builds/releases/${VERSION}"
 
 # $(print_link "${BASE_URL}/conduktor-desktop-${VERSION}.msi")
-NAME="$VERSION ($(date -u "+%Y-%m-%d"))"
+DATE=$(date -u "+%Y-%m-%d")
+NAME="$VERSION ($DATE)"
 
 CURRENT_TAG=$(git describe --abbrev=0 --tags)
 PREVIOUS_TAG=$(git describe --abbrev=0 --tags $(git describe --abbrev=0)^)
@@ -22,9 +23,7 @@ CHANGELOG=$(git log --no-merges --pretty=%s "$PREVIOUS_TAG".."$CURRENT_TAG" | gr
 # These changes WILL appear in Conduktor Desktop UI
 # This should contain only text context-independent (no "Download links below" for instance)
 BODY=$(cat <<-EOF
-### Conduktor Desktop v${VERSION}
-
-Changes:
+### Conduktor Desktop v${VERSION} ($DATE)
 
 $CHANGELOG
 EOF

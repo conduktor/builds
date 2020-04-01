@@ -53,15 +53,15 @@ jobs:
           git clone --single-branch --branch jdk10 --depth 1 https://github.com/edvin/tornadofx
           cd tornadofx && mvn install -Dmaven.test.skip=true
 
-      - name: build desktop.zip
+      - name: build conduktor.zip
         working-directory: conduktor-monorepo
-        run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace build
+        run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace distZip
 
       - name: publish artifact
         uses: actions/upload-artifact@v1
         with:
           name: conduktor-linux
-          path: "./conduktor-monorepo/desktop/build/distributions/desktop-${{ github.event.client_payload.version }}.zip"
+          path: "./conduktor-monorepo/desktop/build/distributions/conduktor-${{ github.event.client_payload.version }}.zip"
 
   zip-windows:
     name: build conduktor.zip for windows
@@ -103,16 +103,16 @@ jobs:
           git clone --single-branch --branch jdk10 --depth 1 https://github.com/edvin/tornadofx
           cd tornadofx && mvn install -Dmaven.test.skip=true
 
-      - name: build desktop.zip
+      - name: build conduktor.zip
         shell: bash
         working-directory: conduktor-monorepo
-        run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace build -x test
+        run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace distZip -x test
 
       - name: publish artifact
         uses: actions/upload-artifact@v1
         with:
           name: conduktor-windows
-          path: "./conduktor-monorepo/desktop/build/distributions/desktop-${{ github.event.client_payload.version }}.zip"
+          path: "./conduktor-monorepo/desktop/build/distributions/conduktor-${{ github.event.client_payload.version }}.zip"
 
   zip-macos:
     name: build conduktor.zip for macos
@@ -155,15 +155,15 @@ jobs:
           git clone --single-branch --branch jdk10 --depth 1 https://github.com/edvin/tornadofx
           cd tornadofx && mvn install -Dmaven.test.skip=true
 
-      - name: build desktop.zip
+      - name: build conduktor.zip
         working-directory: conduktor-monorepo
-        run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace build
+        run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace distZip
 
       - name: publish artifact
         uses: actions/upload-artifact@v1
         with:
           name: conduktor-macos
-          path: "./conduktor-monorepo/desktop/build/distributions/desktop-${{ github.event.client_payload.version }}.zip"
+          path: "./conduktor-monorepo/desktop/build/distributions/conduktor-${{ github.event.client_payload.version }}.zip"
 
   ###############################################################################
 
@@ -184,7 +184,7 @@ jobs:
 
       - name: Build macOS packages
         run: |
-          unzip conduktor-macos/desktop-${{ github.event.client_payload.version }}.zip
+          unzip conduktor-macos/conduktor-${{ github.event.client_payload.version }}.zip
           .github/scripts/macos.sh ${{ github.event.client_payload.version }}
 
       - name: Prepare upload
@@ -218,7 +218,7 @@ jobs:
 
       - name: Build Linux packages
         run: |
-          unzip conduktor-linux/desktop-${{ github.event.client_payload.version }}.zip
+          unzip conduktor-linux/conduktor-${{ github.event.client_payload.version }}.zip
           .github/scripts/linux.sh ${{ github.event.client_payload.version }}
 
       - name: Prepare upload
@@ -253,7 +253,7 @@ jobs:
       - name: Build Windows packages
         shell: bash
         run: |
-          unzip conduktor-windows/desktop-${{ github.event.client_payload.version }}.zip
+          unzip conduktor-windows/conduktor-${{ github.event.client_payload.version }}.zip
           .github/scripts/windows.sh ${{ github.event.client_payload.version }}
 
       - name: Prepare upload
@@ -373,7 +373,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./conduktor-linux/desktop-${{ github.event.client_payload.version }}.zip
+          asset_path: ./conduktor-linux/conduktor-${{ github.event.client_payload.version }}.zip
           asset_name: Conduktor-linux-${{ github.event.client_payload.version }}.zip
           asset_content_type: application/zip
 
@@ -383,7 +383,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./conduktor-windows/desktop-${{ github.event.client_payload.version }}.zip
+          asset_path: ./conduktor-windows/conduktor-${{ github.event.client_payload.version }}.zip
           asset_name: Conduktor-win-${{ github.event.client_payload.version }}.zip
           asset_content_type: application/zip
 
@@ -393,7 +393,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./conduktor-macos/desktop-${{ github.event.client_payload.version }}.zip
+          asset_path: ./conduktor-macos/conduktor-${{ github.event.client_payload.version }}.zip
           asset_name: Conduktor-macOS-${{ github.event.client_payload.version }}.zip
           asset_content_type: application/zip
 

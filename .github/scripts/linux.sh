@@ -18,7 +18,7 @@ curl -sLO $FX
 unzip -oq javafx-*-jmods-linux
 FX_MODS_PATH="./javafx-jmods-14"
 
-CONDUKTOR_DISTRIBUTION_PATH="$(pwd)/desktop-$VERSION"
+CONDUKTOR_DISTRIBUTION_PATH="$(pwd)/conduktor-$VERSION"
 
 echo "Building custom JRE..."
 CUSTOM_JRE_NAME="runtime"
