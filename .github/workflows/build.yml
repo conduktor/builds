@@ -1,7 +1,5 @@
 name: Build
-on:
-  repository_dispatch:
-    types: [release]
+on: [ push, pull_request ]
 
 env:
   CDK_APP_NAME: Conduktor
