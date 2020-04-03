@@ -436,6 +436,7 @@ jobs:
       - name: Slack notification
         uses: 8398a7/action-slack@v2
         if: always()
+        continue-on-error: true
         with:
           status: ${{ job.status }}
           username: Github Actions
