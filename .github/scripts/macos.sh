@@ -165,7 +165,8 @@ jpackage --name "$CDK_APP_NAME" \
               --dest . \
               --input "$CONDUKTOR_DISTRIBUTION_PATH/lib" \
               --main-jar "desktop-$VERSION.jar" \
-              --runtime-image "$CUSTOM_JRE_NAME"
+              --runtime-image "$CUSTOM_JRE_NAME" \
+              --java-options "$CDK_JAVA_OPTIONS"
 
 DMG=true
 if $DMG; then
@@ -186,5 +187,6 @@ if $DMG; then
               --dest . \
               --input "$CONDUKTOR_DISTRIBUTION_PATH/lib" \
               --main-jar "desktop-$VERSION.jar" \
-              --runtime-image "$CUSTOM_JRE_NAME"
+              --runtime-image "$CUSTOM_JRE_NAME" \
+              --java-options "$CDK_JAVA_OPTIONS"
 fi

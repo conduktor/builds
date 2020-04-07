@@ -49,7 +49,8 @@ jpackage --name "$CDK_APP_NAME" \
               --win-dir-chooser \
               --win-menu \
               --win-shortcut \
-              --win-upgrade-uuid 3a60b525-6f18-4c22-8070-d08efcc89b95
+              --win-upgrade-uuid 3a60b525-6f18-4c22-8070-d08efcc89b95 \
+              --java-options "$CDK_JAVA_OPTIONS"
 
 echo "Packaging .exe"
 jpackage --name "$CDK_APP_NAME" \
@@ -69,4 +70,5 @@ jpackage --name "$CDK_APP_NAME" \
               --win-dir-chooser \
               --win-menu \
               --win-shortcut \
-              --win-upgrade-uuid 3a60b525-6f18-4c22-8070-d08efcc89b95
+              --win-upgrade-uuid 3a60b525-6f18-4c22-8070-d08efcc89b95 \
+              --java-options "$CDK_JAVA_OPTIONS"
