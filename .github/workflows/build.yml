@@ -445,6 +445,7 @@ jobs:
           ${{ steps.create_release_body.outputs.bodymd }}
           EOF
           git add $VERSION.md
+					git commit -m "Add changelog for version $VERSION"
           git push
 
       - name: Slack notification
