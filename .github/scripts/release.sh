@@ -42,7 +42,8 @@ BODY="${BODY//$'\r'/'%0D'}"
 BODY_MD=$(cat <<-EOF
 ---
 date: $DATE
---
+---
+
 $CHANGELOG
 EOF
 )
