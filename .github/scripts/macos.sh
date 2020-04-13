@@ -167,16 +167,16 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
     --notarize-app \
     --primary-bundle-id "io.conduktor" \
     --username "$MACOS_SIGNING_USERNAME" --password "$MACOS_SIGNING_SPECIFIC_PWD" \
-    --file "$PKG" \
-    --output-format json | jq -r '."notarization-upload".RequestUUID')
+    --file "$PKG" | grep RequestUUID | sed -e 's/RequestUUID = //')
 
+	echo "Request: $REQUEST_ID"
   # Wait until the request is done processing.
   STATUS=""
   while true; do
       sleep 20
       STATUS=$(xcrun altool --notarization-info "$REQUEST_ID" \
             --username "$MACOS_SIGNING_USERNAME" --password "$MACOS_SIGNING_SPECIFIC_PWD" \
-            --output-format json | jq -r '."notarization-info".Status')
+            | grep Status | sed -e 's/.*Status: //')
       if [ "$STATUS" != "in progress" ]; then
           break;
       fi
@@ -188,7 +188,7 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
       echo "Notarization succeeded, stapling receipt to disk image"
       xcrun stapler staple "$PKG"
   else
-      echo "Notarization failed, aborting the build..."
+      echo "Notarization failed (status: $STATUS), aborting the build..."
       exit 1
   fi
 

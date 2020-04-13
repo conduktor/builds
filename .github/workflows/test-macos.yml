@@ -91,3 +91,14 @@ jobs:
         run: |
           unzip conduktor-macos/conduktor-${{ github.event.client_payload.version }}.zip
           .github/scripts/macos.sh ${{ github.event.client_payload.version }}
+
+      - name: Prepare upload
+        run: |
+          mkdir -p macos
+          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.pkg macos
+
+      - name: Upload macOS .pkg
+        uses: actions/upload-artifact@v1
+        with:
+          name: macos
+          path: macos
