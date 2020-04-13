@@ -68,7 +68,7 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
   security create-keychain -p "$MACOS_SIGNING_IDENTITY_PASSPHRASE" build.keychain
   security default-keychain -s build.keychain
   security unlock-keychain -p "$MACOS_SIGNING_IDENTITY_PASSPHRASE" build.keychain
-	security set-keychain-settings -t 3600 -u build.keychain
+  security set-keychain-settings -t 3600 -u build.keychain
   echo "$MACOS_SIGNING_IDENTITY_B64" > Conduktor.p12.txt
   openssl base64 -d -in Conduktor.p12.txt -out Conduktor.p12
   security import ./Conduktor.p12 -k build.keychain -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productsign -P "$MACOS_SIGNING_IDENTITY_PASSPHRASE"
@@ -97,8 +97,6 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
               --main-jar "desktop-$VERSION.jar" \
               --runtime-image "$CUSTOM_JRE_NAME" \
               --java-options "$CDK_JAVA_OPTIONS"
-  # cleanup
-  rm -rf "$CUSTOM_JRE_NAME"
 
   # let's sign it
   IDENTITY="Developer ID Application: Conduktor LLC (572B6PF39A)"
@@ -169,7 +167,7 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
     --username "$MACOS_SIGNING_USERNAME" --password "$MACOS_SIGNING_SPECIFIC_PWD" \
     --file "$PKG" | grep RequestUUID | sed -e 's/RequestUUID = //')
 
-	echo "Request: $REQUEST_ID"
+  echo "Request: $REQUEST_ID"
   # Wait until the request is done processing.
   STATUS=""
   while true; do
@@ -183,7 +181,7 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
       echo -n "."
   done
 
-	echo
+  echo
 
   # See if notarization succeeded, and if so, staple the ticket to the disk image.
   if [ "$STATUS" = "success" ]; then
@@ -216,5 +214,29 @@ else
               --java-options "$CDK_JAVA_OPTIONS"
 fi
 
+DMG=true
+if $DMG; then
+    cd "$CURRENT_DIR"
+    echo "Packaging .dmg"
+    jpackage --name "$CDK_APP_NAME" \
+              --app-version "$VERSION" \
+              --description "$CDK_APP_DESCRIPTION" \
+              --type dmg \
+              --icon "$DEPLOY_RESOURCES_PATH/Conduktor.icns" \
+              --vendor "$CDK_VENDOR" \
+              --mac-package-identifier "io.conduktor.app.Conduktor" \
+              --mac-package-name "$CDK_APP_NAME" \
+              --main-class io.conduktor.app.ConduktorLauncher \
+              --copyright "$CDK_COPYRIGHT" \
+              --resource-dir "$DEPLOY_RESOURCES_PATH" \
+              --verbose \
+              --dest . \
+              --input "$CONDUKTOR_DISTRIBUTION_PATH/lib" \
+              --main-jar "desktop-$VERSION.jar" \
+              --runtime-image "$CUSTOM_JRE_NAME" \
+              --java-options "$CDK_JAVA_OPTIONS"
+fi
+
+
 # cleanup
-rm -rf "$FX_MODS_PATH"
+rm -rf "$CUSTOM_JRE_NAME" "$FX_MODS_PATH"

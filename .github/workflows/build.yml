@@ -184,6 +184,11 @@ jobs:
           name: conduktor-macos
 
       - name: Build macOS packages
+        env:
+          MACOS_SIGNING_IDENTITY_PASSPHRASE: ${{ secrets.MACOS_SIGNING_IDENTITY_PASSPHRASE }}
+          MACOS_SIGNING_IDENTITY_B64: ${{ secrets.MACOS_SIGNING_IDENTITY_B64 }}
+          MACOS_SIGNING_USERNAME: ${{ secrets.MACOS_SIGNING_USERNAME }}
+          MACOS_SIGNING_SPECIFIC_PWD: ${{ secrets.MACOS_SIGNING_SPECIFIC_PWD }}
         run: |
           unzip conduktor-macos/conduktor-${{ github.event.client_payload.version }}.zip
           .github/scripts/macos.sh ${{ github.event.client_payload.version }}
