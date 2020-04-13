@@ -216,27 +216,5 @@ else
               --java-options "$CDK_JAVA_OPTIONS"
 fi
 
-DMG=true
-if $DMG; then
-    echo "Packaging .dmg"
-    jpackage --name "$CDK_APP_NAME" \
-              --app-version "$VERSION" \
-              --description "$CDK_APP_DESCRIPTION" \
-              --type dmg \
-              --icon "$DEPLOY_RESOURCES_PATH/Conduktor.icns" \
-              --vendor "$CDK_VENDOR" \
-              --mac-package-identifier "io.conduktor.app.Conduktor" \
-              --mac-package-name "$CDK_APP_NAME" \
-              --main-class io.conduktor.app.ConduktorLauncher \
-              --copyright "$CDK_COPYRIGHT" \
-              --resource-dir "$DEPLOY_RESOURCES_PATH" \
-              --verbose \
-              --dest . \
-              --input "$CONDUKTOR_DISTRIBUTION_PATH/lib" \
-              --main-jar "desktop-$VERSION.jar" \
-              --runtime-image "$CUSTOM_JRE_NAME" \
-              --java-options "$CDK_JAVA_OPTIONS"
-fi
-
 # cleanup
 rm -rf "$FX_MODS_PATH"
