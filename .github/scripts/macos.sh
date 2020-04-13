@@ -65,7 +65,7 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
     exit 1
   fi
 
-  #security create-keychain -p "$MACOS_SIGNING_IDENTITY_PASSPHRASE" build.keychain
+  security create-keychain -p "$MACOS_SIGNING_IDENTITY_PASSPHRASE" build.keychain
   security default-keychain -s build.keychain
   security unlock-keychain -p "$MACOS_SIGNING_IDENTITY_PASSPHRASE" build.keychain
 	security set-keychain-settings -t 3600 -u build.keychain
