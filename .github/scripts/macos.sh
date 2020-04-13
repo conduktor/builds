@@ -176,12 +176,14 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
       sleep 20
       STATUS=$(xcrun altool --notarization-info "$REQUEST_ID" \
             --username "$MACOS_SIGNING_USERNAME" --password "$MACOS_SIGNING_SPECIFIC_PWD" \
-            | grep Status | sed -e 's/.*Status: //')
+            | awk -F ': ' '/Status:/ { print $2; }')
       if [ "$STATUS" != "in progress" ]; then
           break;
       fi
-      echo "$(date) ...still waiting for notarization to finish..."
+      echo -n "."
   done
+
+	echo
 
   # See if notarization succeeded, and if so, staple the ticket to the disk image.
   if [ "$STATUS" = "success" ]; then
