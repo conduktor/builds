@@ -445,7 +445,7 @@ jobs:
         run: |
           git config --global user.email "github-actions@conduktor.io"
           git config --global user.name "Github Actions"
-          git clone https://unused:${{ secrets.WEBSITE_GITHUB_TOKEN }}@github.com/simplesteph/www.conduktor.io web
+          git clone https://unused:${{ secrets.WEBSITE_GITHUB_TOKEN }}@github.com/conduktor/www.conduktor.io web
           cd web/_changelogs
           VERSION=${{ github.event.client_payload.version }}
           cat > $VERSION.md <<-EOF
