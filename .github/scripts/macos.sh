@@ -178,7 +178,7 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
       if [ "$STATUS" != "in progress" ]; then
           break;
       fi
-      echo -n "."
+      echo "$(date) ..."
   done
 
   echo
