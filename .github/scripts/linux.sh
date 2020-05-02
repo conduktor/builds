@@ -31,11 +31,13 @@ DEPLOY_RESOURCES_PATH=".github/resources"
 
 ###############################################################################
 
-echo "Packaging .deb"
-jpackage --name "$CDK_APP_NAME" \
+function cdk_jpackage() {
+  TYPE=$1
+  echo "Packaging .${TYPE}"
+  jpackage --name "$CDK_APP_NAME" \
               --app-version "$VERSION" \
               --description "$CDK_APP_DESCRIPTION" \
-              --type deb \
+              --type "$TYPE" \
               --icon "$DEPLOY_RESOURCES_PATH/Conduktor.png" \
               --vendor "$CDK_VENDOR" \
               --main-class io.conduktor.app.ConduktorLauncher \
@@ -50,24 +52,9 @@ jpackage --name "$CDK_APP_NAME" \
               --main-jar "desktop-$VERSION.jar" \
               --runtime-image "$CUSTOM_JRE_NAME" \
               --java-options "$CDK_JAVA_OPTIONS"
-mv conduktor_$VERSION*.deb "Conduktor-$VERSION.deb"
+  mv "conduktor_$VERSION*.$TYPE" "Conduktor-$VERSION.$TYPE"
+}
 
-echo "Packaging .rpm"
-jpackage --name "$CDK_APP_NAME" \
-              --app-version "$VERSION" \
-              --description "$CDK_APP_DESCRIPTION" \
-              --type rpm \
-              --icon "$DEPLOY_RESOURCES_PATH/Conduktor.png" \
-              --vendor "$CDK_VENDOR" \
-              --main-class io.conduktor.app.ConduktorLauncher \
-              --copyright "$CDK_COPYRIGHT" \
-              --linux-package-name "${CDK_APP_NAME,,}" \
-              --linux-shortcut \
-              --resource-dir "$DEPLOY_RESOURCES_PATH" \
-              --verbose \
-              --dest . \
-              --input "$CONDUKTOR_DISTRIBUTION_PATH/lib" \
-              --main-jar "desktop-$VERSION.jar" \
-              --runtime-image "$CUSTOM_JRE_NAME" \
-              --java-options "$CDK_JAVA_OPTIONS"
-mv conduktor-$VERSION*.rpm "Conduktor-$VERSION.rpm"
+for TYPE in rpm deb; do
+  cdk_jpackage $TYPE
+done
