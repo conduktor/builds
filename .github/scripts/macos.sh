@@ -59,6 +59,11 @@ xcrun --version
 xcrun --show-sdk-version
 xcrun --show-sdk-build-version
 
+MACOS_SIGNING_IDENTITY_PASSPHRASE=${MACOS_SIGNING_IDENTITY_PASSPHRASE:-}
+MACOS_SIGNING_IDENTITY_B64=${MACOS_SIGNING_IDENTITY_B64:-}
+MACOS_SIGNING_USERNAME=${MACOS_SIGNING_USERNAME:-}
+MACOS_SIGNING_SPECIFIC_PWD=${MACOS_SIGNING_SPECIFIC_PWD:-}
+
 if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_B64" != "" ]; then
   if [ "$MACOS_SIGNING_USERNAME" = "" ] || [ "$MACOS_SIGNING_SPECIFIC_PWD" = "" ]; then
     echo "Missing auth to notarization service (MACOS_SIGNING_*) aborting..."
@@ -214,7 +219,7 @@ else
               --java-options "$CDK_JAVA_OPTIONS"
 fi
 
-DMG=true
+DMG=false
 if $DMG; then
     cd "$CURRENT_DIR"
     echo "Packaging .dmg"

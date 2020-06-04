@@ -197,7 +197,7 @@ jobs:
         run: |
           mkdir -p macos
           mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.pkg macos
-          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.dmg macos
+          #mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.dmg macos
 
       - name: Upload macOS .pkg & .dmg
         uses: actions/upload-artifact@v1
@@ -343,15 +343,15 @@ jobs:
           asset_name: Conduktor-${{ github.event.client_payload.version }}.msi
           asset_content_type: application/vnd.microsoft.portable-executable
 
-      - name: Upload macOS .dmg
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./macos/Conduktor-${{ github.event.client_payload.version }}.dmg
-          asset_name: Conduktor-${{ github.event.client_payload.version }}.dmg
-          asset_content_type: application/x-apple-diskimage
+      # - name: Upload macOS .dmg
+      #   uses: actions/upload-release-asset@v1.0.1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./macos/Conduktor-${{ github.event.client_payload.version }}.dmg
+      #     asset_name: Conduktor-${{ github.event.client_payload.version }}.dmg
+      #     asset_content_type: application/x-apple-diskimage
 
       - name: Upload Windows .exe
         uses: actions/upload-release-asset@v1.0.1

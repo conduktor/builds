@@ -11,9 +11,9 @@ if $UPDATE_ONLY; then
 
 	echo "Updating links to v$VERSION"
 
-	SYSTEM=macOS
-	EXTENSION=dmg
-	curl -sSf -o /dev/null 'https://api.rebrandly.com/v1/links/85cf14f89f2b4d5ea73cfc131ce7cba5' -XPOST -H "apikey: $API" -H 'Content-Type: application/json' -d"{\"title\": \"Conduktor ${SYSTEM} .${EXTENSION}\", \"destination\": \"https://github.com/conduktor/builds/releases/download/v${VERSION}/Conduktor-${VERSION}.${EXTENSION}\"}"
+	#SYSTEM=macOS
+	#EXTENSION=dmg
+	#curl -sSf -o /dev/null 'https://api.rebrandly.com/v1/links/85cf14f89f2b4d5ea73cfc131ce7cba5' -XPOST -H "apikey: $API" -H 'Content-Type: application/json' -d"{\"title\": \"Conduktor ${SYSTEM} .${EXTENSION}\", \"destination\": \"https://github.com/conduktor/builds/releases/download/v${VERSION}/Conduktor-${VERSION}.${EXTENSION}\"}"
 
 	SYSTEM=macOS
 	EXTENSION=pkg
@@ -55,9 +55,9 @@ else
 
 	echo "Creating links to v$VERSION"
 
-	SYSTEM=macOS
-	EXTENSION=dmg
-	curl -sSf -o /dev/null 'https://api.rebrandly.com/v1/links' -XPOST -H "apikey: $API" -H 'Content-Type: application/json' -d"{\"title\": \"Conduktor ${SYSTEM} .${EXTENSION}\", \"domain\":{ \"fullName\": \"releases.conduktor.io\"}, \"slashtag\": \"${SYSTEM}-${EXTENSION}\", \"destination\": \"https://github.com/conduktor/builds/releases/download/v${VERSION}/Conduktor-${VERSION}.${EXTENSION}\"}"
+	#SYSTEM=macOS
+	#EXTENSION=dmg
+	#curl -sSf -o /dev/null 'https://api.rebrandly.com/v1/links' -XPOST -H "apikey: $API" -H 'Content-Type: application/json' -d"{\"title\": \"Conduktor ${SYSTEM} .${EXTENSION}\", \"domain\":{ \"fullName\": \"releases.conduktor.io\"}, \"slashtag\": \"${SYSTEM}-${EXTENSION}\", \"destination\": \"https://github.com/conduktor/builds/releases/download/v${VERSION}/Conduktor-${VERSION}.${EXTENSION}\"}"
 
 	SYSTEM=macOS
 	EXTENSION=pkg
