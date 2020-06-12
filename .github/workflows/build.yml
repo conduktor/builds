@@ -17,7 +17,7 @@ env:
 jobs:
   zip-linux:
     name: build conduktor.zip for linux
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
@@ -66,7 +66,7 @@ jobs:
 
   zip-windows:
     name: build conduktor.zip for windows
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
@@ -117,7 +117,7 @@ jobs:
 
   zip-macos:
     name: build conduktor.zip for macos
-    runs-on: macos-latest
+    runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
@@ -169,7 +169,7 @@ jobs:
   ###############################################################################
 
   macos:
-    runs-on: macos-latest
+    runs-on: macos-10.15
     needs: zip-macos
 
     steps:
@@ -208,7 +208,7 @@ jobs:
   ###############################################################################
 
   linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     needs: zip-linux
 
     steps:
@@ -242,7 +242,7 @@ jobs:
   ###############################################################################
 
   windows:
-    runs-on: windows-latest
+    runs-on: windows-2019
     needs: zip-windows
 
     steps:
@@ -279,7 +279,7 @@ jobs:
 
   release:
     name: "Prepare Github Release"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     needs: [linux, windows, macos]
     steps:
       - uses: actions/checkout@v2
