@@ -262,6 +262,13 @@ jobs:
           unzip conduktor-windows/conduktor-${{ github.event.client_payload.version }}.zip
           .github/scripts/windows.sh ${{ github.event.client_payload.version }}
 
+      - name: Sign Windows packages
+        env:
+          WIN_SIGN_PFX: ${{ secrets.WIN_SIGN_PFX }}
+          WIN_SIGN_PFX_KEY: ${{ secrets.WIN_SIGN_PFX_KEY }}
+        run: .github\scripts\winsign.ps1 ${{ github.event.client_payload.version }}
+        shell: powershell
+
       - name: Prepare upload
         shell: bash
         run: |
