@@ -18,7 +18,7 @@ NAME="$VERSION ($DATE)"
 
 CURRENT_TAG=$(git describe --abbrev=0 --tags)
 PREVIOUS_TAG=$(git describe --abbrev=0 --tags $(git describe --abbrev=0)^)
-CHANGELOG=$(git log --no-merges --pretty=%s "$PREVIOUS_TAG".."$CURRENT_TAG" | grep -v "skip ci" | grep -v "skip changelog" | sed -e 's/^/- /')
+CHANGELOG=$(git log --no-merges --pretty=%s "$PREVIOUS_TAG".."$CURRENT_TAG" --invert-grep --grep="Bomb" --grep "Retirement notice" --grep "Deprecation notice" --grep "Reduce Sentry usage and auth0 refresh token scheduler" --grep "skip ci" --grep "skip changelog" | sed -e 's/^/- /')
 
 #
 # These changes WILL appear in Conduktor Desktop UI
