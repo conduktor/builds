@@ -55,6 +55,9 @@ jobs:
           cd tornadofx && mvn install -Dmaven.test.skip=true
 
       - name: build conduktor.zip
+        env:
+          GH_PACKAGES_USERNAME: ${{ secrets.GH_PACKAGES_USERNAME }}
+          GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
         working-directory: conduktor-monorepo
         run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace distZip
 
@@ -105,6 +108,9 @@ jobs:
           cd tornadofx && mvn install -Dmaven.test.skip=true
 
       - name: build conduktor.zip
+        env:
+          GH_PACKAGES_USERNAME: ${{ secrets.GH_PACKAGES_USERNAME }}
+          GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
         shell: bash
         working-directory: conduktor-monorepo
         run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace distZip -x test
@@ -157,6 +163,9 @@ jobs:
           cd tornadofx && mvn install -Dmaven.test.skip=true
 
       - name: build conduktor.zip
+        env:
+          GH_PACKAGES_USERNAME: ${{ secrets.GH_PACKAGES_USERNAME }}
+          GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
         working-directory: conduktor-monorepo
         run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace distZip
 
