@@ -432,7 +432,7 @@ jobs:
       - name: Update links
         run: .github/scripts/update-links.sh ${{ secrets.REBRANDLY_TOKEN }} ${{ github.event.client_payload.version }}
 
-      - name: Update DO
+      - name: Update AWS
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
