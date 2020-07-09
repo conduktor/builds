@@ -438,23 +438,19 @@ jobs:
           DO_SECRET: ${{ secrets.DO_SECRET }}
           DO_TOKEN: ${{ secrets.DO_TOKEN }}
         run: |
-          wget -q https://github.com/digitalocean/doctl/releases/download/v1.39.0/doctl-1.39.0-linux-amd64.tar.gz
-          tar xf doctl-1.39.0-linux-amd64.tar.gz
           wget -q https://github.com/s3tools/s3cmd/releases/download/v2.0.2/s3cmd-2.0.2.tar.gz
           tar xf s3cmd-2.0.2.tar.gz
           sudo apt-get install -y python-dateutil
           VERSION=${{ github.event.client_payload.version }}
           echo $VERSION > latest
           cat > $VERSION.md <<-EOF
-          ${{ steps.create_release_body.outputs.body }}
+          ${{ steps.create_release_body.outputs.bodymd }}
           EOF
-          ./s3cmd-2.0.2/s3cmd --access_key="$DO_KEY" --secret_key="$DO_SECRET" --host sfo2.digitaloceanspaces.com --host-bucket="%(bucket)s.sfo2.digitaloceanspaces.com" get s3://conduktor/releases/all all
+          ./s3cmd-2.0.2/s3cmd --access_key="$AWS_KEY" --secret_key="$AWS_SECRET" --host s3-eu-west-1.amazonaws.com --host-bucket="%(bucket)s.s3.amazonaws.com" get s3://cdn-conduktor-io/releases/all all
           echo $VERSION >> all
-          ./s3cmd-2.0.2/s3cmd --access_key="$DO_KEY" --secret_key="$DO_SECRET" --host sfo2.digitaloceanspaces.com --host-bucket="%(bucket)s.sfo2.digitaloceanspaces.com" sync all s3://conduktor/releases/all --acl-public
-          ./s3cmd-2.0.2/s3cmd --access_key="$DO_KEY" --secret_key="$DO_SECRET" --host sfo2.digitaloceanspaces.com --host-bucket="%(bucket)s.sfo2.digitaloceanspaces.com" sync latest s3://conduktor/releases/latest --acl-public
-          ./s3cmd-2.0.2/s3cmd --access_key="$DO_KEY" --secret_key="$DO_SECRET" --host sfo2.digitaloceanspaces.com --host-bucket="%(bucket)s.sfo2.digitaloceanspaces.com" put $VERSION.md s3://conduktor/releases/ --acl-public
-          ./doctl compute cdn flush --access-token $DO_TOKEN f219a472-61e3-40ab-b762-8588a06055d2 --files [releases/latest]
-          ./doctl compute cdn flush --access-token $DO_TOKEN f219a472-61e3-40ab-b762-8588a06055d2 --files [releases/all]
+          ./s3cmd-2.0.2/s3cmd --access_key="$AWS_KEY" --secret_key="$AWS_SECRET" --host s3-eu-west-1.amazonaws.com --host-bucket="%(bucket)s.s3.amazonaws.com" sync all s3://cdn-conduktor-io/releases/all
+          ./s3cmd-2.0.2/s3cmd --access_key="$AWS_KEY" --secret_key="$AWS_SECRET" --host s3-eu-west-1.amazonaws.com --host-bucket="%(bucket)s.s3.amazonaws.com" sync latest s3://cdn-conduktor-io/releases/latest
+          ./s3cmd-2.0.2/s3cmd --access_key="$AWS_KEY" --secret_key="$AWS_SECRET" --host s3-eu-west-1.amazonaws.com --host-bucket="%(bucket)s.s3.amazonaws.com" put $VERSION.md s3://cdn-conduktor-io/releases/
 
       - name: Update website
         continue-on-error: true
