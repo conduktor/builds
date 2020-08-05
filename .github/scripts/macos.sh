@@ -173,6 +173,11 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
     --file "$PKG" | grep RequestUUID | sed -e 's/RequestUUID = //')
 
   echo "Request: $REQUEST_ID"
+
+  # sometimes, the check fails instantly because Apple can't find the ID they just gave us!
+  # so we wait a long time here (it's slow anyway)
+  sleep 60
+
   # Wait until the request is done processing.
   STATUS=""
   while true; do
