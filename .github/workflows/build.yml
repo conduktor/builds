@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
-        uses: joschi/setup-jdk@v1
+        uses: joschi/setup-jdk@v2
         with:
           java-version: openjdk14
       - name: Fetch conduktor from Gitlab
@@ -73,7 +73,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
-        uses: joschi/setup-jdk@v1
+        uses: joschi/setup-jdk@v2
         with:
           java-version: openjdk14
       - name: Fetch conduktor from Gitlab
@@ -127,7 +127,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
-        uses: joschi/setup-jdk@v1
+        uses: joschi/setup-jdk@v2
         with:
           java-version: openjdk14
       - name: Fetch conduktor from Gitlab
@@ -183,7 +183,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: joschi/setup-jdk@v1
+      - uses: joschi/setup-jdk@v2
         with:
           java-version: openjdk14
 
@@ -222,7 +222,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: joschi/setup-jdk@v1
+      - uses: joschi/setup-jdk@v2
         with:
           java-version: openjdk14
 
@@ -256,7 +256,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: joschi/setup-jdk@v1
+      - uses: joschi/setup-jdk@v2
         with:
           java-version: openjdk14
 
