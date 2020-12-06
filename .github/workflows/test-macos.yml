@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
-        uses: joschi/setup-jdk@v1
+        uses: joschi/setup-jdk@v2
         with:
           java-version: openjdk14
       - name: Fetch conduktor from Gitlab
@@ -73,7 +73,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: joschi/setup-jdk@v1
+      - uses: joschi/setup-jdk@v2
         with:
           java-version: openjdk14
 
@@ -89,6 +89,8 @@ jobs:
           MACOS_SIGNING_USERNAME: ${{ secrets.MACOS_SIGNING_USERNAME }}
           MACOS_SIGNING_SPECIFIC_PWD: ${{ secrets.MACOS_SIGNING_SPECIFIC_PWD }}
         run: |
+          ls /Applications
+          sudo xcode-select -s "/Applications/Xcode_12.0.app"
           unzip conduktor-macos/conduktor-${{ github.event.client_payload.version }}.zip
           .github/scripts/macos.sh ${{ github.event.client_payload.version }}
 
