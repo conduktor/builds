@@ -56,8 +56,8 @@ jlink --module-path "$FX_MODS_PATH" \
 ###############################################################################
 # just to get insights
 xcrun --version
-xcrun --show-sdk-version
-xcrun --show-sdk-build-version
+#xcrun --show-sdk-version
+#xcrun --show-sdk-build-version
 
 MACOS_SIGNING_IDENTITY_PASSPHRASE=${MACOS_SIGNING_IDENTITY_PASSPHRASE:-}
 MACOS_SIGNING_IDENTITY_B64=${MACOS_SIGNING_IDENTITY_B64:-}
