@@ -93,7 +93,7 @@ jobs:
           MACOS_SIGNING_SPECIFIC_PWD: ${{ secrets.MACOS_SIGNING_SPECIFIC_PWD }}
         run: |
           ls /Applications
-          sudo xcode-select -s "/Applications/Xcode_12.0.app"
+          sudo xcode-select -s "/Applications/Xcode_12.2.app"
           unzip conduktor-macos/conduktor-${{ github.event.client_payload.version }}.zip
           .github/scripts/macos.sh ${{ github.event.client_payload.version }}
 
