@@ -81,7 +81,7 @@ function cdk_jpackage_single_user() {
           --java-options "$CDK_JAVA_OPTIONS"
 }
 
-cdk_package_single_user msi
+cdk_jpackage_single_user msi
 mv "${CDK_APP_NAME}-${VERSION}.msi" "${CDK_APP_NAME}-${VERSION}-single-user.msi"
 
 for TYPE in msi exe ; do 
