@@ -284,8 +284,9 @@ jobs:
           mkdir -p windows
           mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.exe windows
           mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.msi windows
+          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}-single-user.msi windows
 
-      - name: Upload Windows .msi and .exe
+      - name: Upload Windows .msi x2 and .exe
         uses: actions/upload-artifact@v1
         with:
           name: windows
@@ -359,6 +360,16 @@ jobs:
           asset_name: Conduktor-${{ github.event.client_payload.version }}.msi
           asset_content_type: application/vnd.microsoft.portable-executable
 
+      - name: Upload Windows .msi single-user
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./windows/Conduktor-${{ github.event.client_payload.version }}-single-user.msi
+          asset_name: Conduktor-${{ github.event.client_payload.version }}-single-user.msi
+          asset_content_type: application/vnd.microsoft.portable-executable
+
       # - name: Upload macOS .dmg
       #   uses: actions/upload-release-asset@v1.0.1
       #   env:
@@ -379,7 +390,7 @@ jobs:
           asset_name: Conduktor-${{ github.event.client_payload.version }}.exe
           asset_content_type: application/x-apple-diskimage
 
-      - name: Upload Linux  .deb
+      - name: Upload Linux .deb
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -419,7 +430,7 @@ jobs:
           asset_name: Conduktor-macOS-${{ github.event.client_payload.version }}.zip
           asset_content_type: application/zip
 
-      - name: Upload Linux  .rpm
+      - name: Upload Linux .rpm
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

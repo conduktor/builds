@@ -20,6 +20,10 @@ Try
 
   Write-Host "Signing .msi"
   & $SignTool sign /v /d "Conduktor Desktop v$Version" /du "https://www.conduktor.io" /f conduktor.pfx /p "$env:WIN_SIGN_PFX_KEY" /tr "http://timestamp.comodoca.com?td=sha256" /fd sha256 /td sha256 "Conduktor-$Version.msi"
+  Start-Sleep -s 15
+  
+  Write-Host "Signing .msi Single User"
+  & $SignTool sign /v /d "Conduktor Desktop v$Version" /du "https://www.conduktor.io" /f conduktor.pfx /p "$env:WIN_SIGN_PFX_KEY" /tr "http://timestamp.comodoca.com?td=sha256" /fd sha256 /td sha256 "Conduktor-$Version-single-user.msi"
 }
 Catch {
   Write-Host "An error occurred:"

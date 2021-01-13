@@ -34,6 +34,10 @@ if $UPDATE_ONLY; then
 	curl -sSf -o /dev/null 'https://api.rebrandly.com/v1/links/c3e4aef5563e4639bbfe757ad03eb0f0' -XPOST -H "apikey: $API" -H 'Content-Type: application/json' -d"{\"title\": \"Conduktor ${SYSTEM} .${EXTENSION}\", \"destination\": \"https://github.com/conduktor/builds/releases/download/v${VERSION}/Conduktor-${VERSION}.${EXTENSION}\"}"
 
 	SYSTEM=win
+	EXTENSION=msi
+	curl -sSf -o /dev/null 'https://api.rebrandly.com/v1/links/db7616df10514a64b9e784c0929cb13a' -XPOST -H "apikey: $API" -H 'Content-Type: application/json' -d"{\"title\": \"Conduktor ${SYSTEM} .${EXTENSION}\", \"destination\": \"https://github.com/conduktor/builds/releases/download/v${VERSION}/Conduktor-${VERSION}-single-user.${EXTENSION}\"}"
+
+	SYSTEM=win
 	EXTENSION=zip
 	curl -sSf -o /dev/null 'https://api.rebrandly.com/v1/links/0253c50edbc94ed2a1d239d0bb31c9d5' -XPOST -H "apikey: $API" -H 'Content-Type: application/json' -d"{\"title\": \"Conduktor ${SYSTEM} .${EXTENSION}\", \"destination\": \"https://github.com/conduktor/builds/releases/download/v${VERSION}/Conduktor-${SYSTEM}-${VERSION}.${EXTENSION}\"}"
 
