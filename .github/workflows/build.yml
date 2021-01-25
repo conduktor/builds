@@ -24,9 +24,9 @@ jobs:
         uses: joschi/setup-jdk@v2
         with:
           java-version: openjdk14
-      - name: Fetch conduktor from Gitlab
+      - name: Fetch Conduktor sources
         run: |
-          git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
+          git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GH_BUILD_TOKEN}}@github.com/conduktor/conduktor-desktop.git
 
       - name: Gradle cache
         uses: actions/cache@v1
@@ -58,14 +58,14 @@ jobs:
         env:
           GH_PACKAGES_USERNAME: ${{ secrets.GH_PACKAGES_USERNAME }}
           GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
-        working-directory: conduktor-monorepo
+        working-directory: conduktor-desktop
         run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace distZip
 
       - name: publish artifact
         uses: actions/upload-artifact@v1
         with:
           name: conduktor-linux
-          path: "./conduktor-monorepo/desktop/build/distributions/conduktor-${{ github.event.client_payload.version }}.zip"
+          path: "./conduktor-desktop/desktop/build/distributions/conduktor-${{ github.event.client_payload.version }}.zip"
 
   zip-windows:
     name: build conduktor.zip for windows
@@ -76,9 +76,9 @@ jobs:
         uses: joschi/setup-jdk@v2
         with:
           java-version: openjdk14
-      - name: Fetch conduktor from Gitlab
+      - name: Fetch Conduktor sources
         run: |
-          git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
+          git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GH_BUILD_TOKEN}}@github.com/conduktor/conduktor-desktop.git
 
       - name: Gradle cache
         uses: actions/cache@v1
@@ -112,14 +112,14 @@ jobs:
           GH_PACKAGES_USERNAME: ${{ secrets.GH_PACKAGES_USERNAME }}
           GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
         shell: bash
-        working-directory: conduktor-monorepo
+        working-directory: conduktor-desktop
         run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace distZip -x test
 
       - name: publish artifact
         uses: actions/upload-artifact@v1
         with:
           name: conduktor-windows
-          path: "./conduktor-monorepo/desktop/build/distributions/conduktor-${{ github.event.client_payload.version }}.zip"
+          path: "./conduktor-desktop/desktop/build/distributions/conduktor-${{ github.event.client_payload.version }}.zip"
 
   zip-macos:
     name: build conduktor.zip for macos
@@ -130,9 +130,9 @@ jobs:
         uses: joschi/setup-jdk@v2
         with:
           java-version: openjdk14
-      - name: Fetch conduktor from Gitlab
+      - name: Fetch Conduktor sources
         run: |
-          git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
+          git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GH_BUILD_TOKEN}}@github.com/conduktor/conduktor-desktop.git
 
       - name: Clean up existing cache
         run: rm -rf ~/.gradle/caches/*
@@ -166,14 +166,14 @@ jobs:
         env:
           GH_PACKAGES_USERNAME: ${{ secrets.GH_PACKAGES_USERNAME }}
           GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
-        working-directory: conduktor-monorepo
+        working-directory: conduktor-desktop
         run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace distZip
 
       - name: publish artifact
         uses: actions/upload-artifact@v1
         with:
           name: conduktor-macos
-          path: "./conduktor-monorepo/desktop/build/distributions/conduktor-${{ github.event.client_payload.version }}.zip"
+          path: "./conduktor-desktop/desktop/build/distributions/conduktor-${{ github.event.client_payload.version }}.zip"
 
   ###############################################################################
 
@@ -300,14 +300,14 @@ jobs:
     needs: [linux, windows, macos]
     steps:
       - uses: actions/checkout@v2
-      - name: Fetch conduktor from Gitlab
+      - name: Fetch Conduktor sources
         run: |
-          git clone --branch ${{ github.event.client_payload.tag }} https://osef:${{secrets.GITLAB_TOKEN}}@gitlab.com/datacumulus/conduktor/conduktor-monorepo.git
+          git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GH_BUILD_TOKEN}}@github.com/conduktor/conduktor-desktop.git
 
       - name: "Config Github release"
         run: ../.github/scripts/release.sh ${{ github.event.client_payload.version }}
         id: create_release_body
-        working-directory: conduktor-monorepo
+        working-directory: conduktor-desktop
 
       - uses: actions/download-artifact@v1
         with:
