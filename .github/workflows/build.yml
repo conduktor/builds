@@ -302,7 +302,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Fetch Conduktor sources
         run: |
-          git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GH_BUILD_TOKEN}}@github.com/conduktor/conduktor-desktop.git
+          git clone --branch --branch ${{ github.event.client_payload.tag }} https://osef:${{secrets.GH_BUILD_TOKEN}}@github.com/conduktor/conduktor-desktop.git
 
       - name: "Config Github release"
         run: ../.github/scripts/release.sh ${{ github.event.client_payload.version }}
