@@ -461,6 +461,7 @@ jobs:
           ./s3cmd-2.0.2/s3cmd --access_key="$AWS_ACCESS_KEY_ID" --secret_key="$AWS_SECRET_ACCESS_KEY" --host s3-eu-west-1.amazonaws.com --host-bucket="%(bucket)s.s3.amazonaws.com" sync all s3://cdn-conduktor-io/releases/all
           ./s3cmd-2.0.2/s3cmd --access_key="$AWS_ACCESS_KEY_ID" --secret_key="$AWS_SECRET_ACCESS_KEY" --host s3-eu-west-1.amazonaws.com --host-bucket="%(bucket)s.s3.amazonaws.com" sync latest s3://cdn-conduktor-io/releases/latest
           ./s3cmd-2.0.2/s3cmd --access_key="$AWS_ACCESS_KEY_ID" --secret_key="$AWS_SECRET_ACCESS_KEY" --host s3-eu-west-1.amazonaws.com --host-bucket="%(bucket)s.s3.amazonaws.com" put $VERSION.md s3://cdn-conduktor-io/releases/
+          aws cloudfront create-invalidation --distribution-id E1UH3TV7ZSXK3G --paths "/releases*"
 
       - name: Update website
         continue-on-error: true
