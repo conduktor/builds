@@ -490,3 +490,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Slack notification
+        uses: 8398a7/action-slack@v2
+        if: success()
+        continue-on-error: true
+        with:
+          status: custom
+          username: Conduktor Release
+          icon_emoji: ":muscle:"
+          custom_payload: |
+            {
+              "channel": "C01DRM6L2J3",
+              "title_link": "https://www.conduktor.io/changelog/",
+              "attachments": [{
+                color: 'good',
+                text: `Conduktor ${{ github.event.client_payload.version }} released! `,
+              }]
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
