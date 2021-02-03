@@ -479,12 +479,13 @@ jobs:
           git push
 
       - name: Slack notification
-        uses: 8398a7/action-slack@v2
+        uses: 8398a7/action-slack@v3
         if: always()
         continue-on-error: true
         with:
           status: ${{ job.status }}
           username: Github Actions
+          fields: repo,eventName,workflow
           icon_emoji: ":octocat:"
           text: ${{ github.event.client_payload.version }}
         env:
@@ -492,7 +493,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Slack notification
-        uses: 8398a7/action-slack@v2
+        uses: 8398a7/action-slack@v3
         if: success()
         continue-on-error: true
         with:
