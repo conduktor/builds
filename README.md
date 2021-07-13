@@ -1,4 +1,6 @@
-# Conduktor
+<img src="https://www.conduktor.io/uploads/conduktor.svg" width="256">
+
+# Releases
 
 This repository contains the releases made by Conduktor.
 
