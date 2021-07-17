@@ -477,7 +477,27 @@ jobs:
           git add $VERSION.md
           git commit -m "Add changelog for version $VERSION"
           git push
-
+         
+      - id: shastep
+        name: Set sha-256 output variable
+        run: | 
+            FILENAME=./macos/Conduktor-${{ github.event.client_payload.version }}.pkg
+            SHA=$(shasum -a 256 $FILENAME | head -c 64)
+            echo "::set-output name=sha::$SHA"
+            
+      - name: Update the conduktor brew tap repository
+        run: |
+            VERSION=${{ github.event.client_payload.version }}
+            eval `ssh-agent -s`
+            ssh-add - <<< "${{ secrets.SECRET }}"
+            git clone git@github.com:conduktor/homebrew-brew.git
+            cd homebrew-brew/Casks/
+            awk -i inplace 'NR==2{print "  version \"${{ github.event.client_payload.version }}\""; next}1' conduktor.rb
+            awk -i inplace 'NR==3{print "  sha256 \"${{ steps.shastep.outputs.sha }}\""; next}1' conduktor.rb
+            git add conduktor.rb
+            git commit -m "Version updated to $VERSION"
+            git push 
+   
       - name: Slack notification
         uses: 8398a7/action-slack@v3
         if: always()
