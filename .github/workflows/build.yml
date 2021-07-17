@@ -478,22 +478,18 @@ jobs:
           git commit -m "Add changelog for version $VERSION"
           git push
          
-      - id: shastep
-        name: Set sha-256 output variable
-        run: | 
-            FILENAME=./macos/Conduktor-${{ github.event.client_payload.version }}.pkg
-            SHA=$(shasum -a 256 $FILENAME | head -c 64)
-            echo "::set-output name=sha::$SHA"
-            
       - name: Update the conduktor brew tap repository
-        run: |
+        continue-on-error: true
+        run: | 
             VERSION=${{ github.event.client_payload.version }}
-            eval `ssh-agent -s`
-            ssh-add - <<< "${{ secrets.SECRET }}"
-            git clone git@github.com:conduktor/homebrew-brew.git
+            FILENAME=./macos/Conduktor-${VERSION}.pkg
+            SHA=$(shasum -a 256 $FILENAME | head -c 64)
+            git config --global user.email "github-actions@conduktor.io"
+            git config --global user.name "Github Actions"
+            git clone https://unused:${{ secrets.WEBSITE_GITHUB_TOKEN }}@github.com/conduktor/homebrew-brew
             cd homebrew-brew/Casks/
-            awk -i inplace 'NR==2{print "  version \"${{ github.event.client_payload.version }}\""; next}1' conduktor.rb
-            awk -i inplace 'NR==3{print "  sha256 \"${{ steps.shastep.outputs.sha }}\""; next}1' conduktor.rb
+            sed -i "2s/.*/  version \"${VERSION}\"/" conduktor.rb
+            sed -i "3s/.*/  sha256 \"${SHA}\"/" conduktor.rb
             git add conduktor.rb
             git commit -m "Version updated to $VERSION"
             git push 
