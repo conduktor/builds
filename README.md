@@ -10,6 +10,14 @@ Our software itself is not open-source and belongs to private repositories: http
 
 We build Conduktor for all systems: Windows, macOS, and Linux.
 
+For macOS, we are also available via brew on a custom tap, ⭐️ please star this repo⭐️  to help us be official without custom tap:
+
+```
+$ brew tap conduktor/brew
+$ brew install conduktor
+```
+
+
 The latest version is available at https://www.conduktor.io/download/
 
 
