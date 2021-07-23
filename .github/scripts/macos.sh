@@ -3,7 +3,7 @@
 set -o errexit -o pipefail -o nounset
 IFS=$'\t\n'
 
-FX="https://gluonhq.com/download/javafx-14-jmods-mac"
+FX="https://gluonhq.com/download/javafx-16-jmods-mac"
 
 CURRENT_DIR=$(pwd)
 echo "Current dir: $CURRENT_DIR"
@@ -39,8 +39,8 @@ echo "Downloading JavaFX Jmods..."
 curl -sLO $FX
 unzip -oq javafx-*-jmods-mac
 # cleanup
-rm -f javafx-14-jmods-mac
-FX_MODS_PATH="./javafx-jmods-14"
+rm -f javafx-16-jmods-mac
+FX_MODS_PATH="./javafx-jmods-16"
 
 echo "Building custom JRE..."
 CUSTOM_JRE_NAME="runtime"

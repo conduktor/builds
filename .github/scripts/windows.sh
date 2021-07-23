@@ -3,7 +3,7 @@
 set -o errexit -o pipefail -o nounset -x
 IFS=$'\t\n'
 
-FX="https://gluonhq.com/download/javafx-14-jmods-windows"
+FX="https://gluonhq.com/download/javafx-16-jmods-windows"
 
 CURRENT_DIR=$(pwd)
 echo "Current dir: $CURRENT_DIR"
@@ -16,7 +16,7 @@ echo "Will build Conduktor $VERSION"
 echo "Downloading JavaFX Jmods..."
 curl -sLO $FX
 unzip -oq javafx-*-jmods-windows
-FX_MODS_PATH="./javafx-jmods-14"
+FX_MODS_PATH="./javafx-jmods-16"
 
 CONDUKTOR_DISTRIBUTION_PATH="$(pwd)/conduktor-$VERSION"
 
