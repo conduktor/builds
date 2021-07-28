@@ -20,10 +20,12 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: joschi/setup-jdk@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
         with:
-          java-version: openjdk14
+          distribution: 'zulu'
+          java-version: '11'
+          java-package: jdk #+fx
       - name: Fetch Conduktor sources
         run: |
           git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GH_BUILD_TOKEN}}@github.com/conduktor/conduktor-desktop.git
@@ -72,10 +74,12 @@ jobs:
     runs-on: windows-2019
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: joschi/setup-jdk@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
         with:
-          java-version: openjdk14
+          distribution: 'zulu'
+          java-version: '11'
+          java-package: jdk #+fx
       - name: Fetch Conduktor sources
         run: |
           git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GH_BUILD_TOKEN}}@github.com/conduktor/conduktor-desktop.git
@@ -126,10 +130,12 @@ jobs:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: joschi/setup-jdk@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
         with:
-          java-version: openjdk14
+          distribution: 'zulu'
+          java-version: '11'
+          java-package: jdk #+fx
       - name: Fetch Conduktor sources
         run: |
           git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GH_BUILD_TOKEN}}@github.com/conduktor/conduktor-desktop.git
@@ -183,9 +189,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: joschi/setup-jdk@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
         with:
-          java-version: openjdk14
+          distribution: 'zulu'
+          java-version: '11'
+          java-package: jdk #+fx
 
       - name: Download built distribution
         uses: actions/download-artifact@v1
@@ -222,9 +231,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: joschi/setup-jdk@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
         with:
-          java-version: openjdk14
+          distribution: 'zulu'
+          java-version: '11'
+          java-package: jdk #+fx
 
       - name: Download built distribution
         uses: actions/download-artifact@v1
@@ -256,9 +268,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: joschi/setup-jdk@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
         with:
-          java-version: openjdk14
+          distribution: 'zulu'
+          java-version: '11'
+          java-package: jdk #+fx
 
       - name: Download built distribution
         uses: actions/download-artifact@v1
