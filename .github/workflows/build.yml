@@ -48,11 +48,8 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2
 
-      - name: "Build tornadofx snapshot"
-        run: |
-          env
-          git clone --single-branch --branch jdk10 --depth 1 https://github.com/edvin/tornadofx
-          cd tornadofx && mvn install -Dmaven.test.skip=true
+      - name: Install Tornadofx
+        run: ./scripts/install_tornadofx_lib.sh
 
       - name: build conduktor.zip
         env:
@@ -100,12 +97,9 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2
 
-      - name: "Build tornadofx snapshot"
+      - name: Install Tornadofx
         shell: bash
-        run: |
-          env
-          git clone --single-branch --branch jdk10 --depth 1 https://github.com/edvin/tornadofx
-          cd tornadofx && mvn install -Dmaven.test.skip=true
+        run: ./scripts/install_tornadofx_lib.sh
 
       - name: build conduktor.zip
         env:
@@ -156,11 +150,8 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2
 
-      - name: "Build tornadofx snapshot"
-        run: |
-          env
-          git clone --single-branch --branch jdk10 --depth 1 https://github.com/edvin/tornadofx
-          cd tornadofx && mvn install -Dmaven.test.skip=true
+      - name: Install Tornadofx
+        run: ./scripts/install_tornadofx_lib.sh
 
       - name: build conduktor.zip
         env:
