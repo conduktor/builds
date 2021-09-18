@@ -108,20 +108,21 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
   IDENTITY_INSTALLER="Developer ID Installer: Conduktor LLC (572B6PF39A)"
   ENTITLEMENTS_PATH="$DEPLOY_RESOURCES_PATH/Conduktor.entitlements"
 
-  echo "Repackaging JavaFX..."
+  echo "Signing unsigned native libs..."
   CURRENT=$(pwd)
-  for javafx in $(find $APP/Contents/app -name "javafx*-mac.jar"); do
+  for jar in $(find $APP/Contents/app -name "javafx*-mac.jar" -o -name "grpc-netty-shaded-*.jar" -o -name "conscrypt-openjdk-uber-*.jar"); do
     GOTO=$(mktemp -d)
     cd "$GOTO"
-    jar xf "$CURRENT/$javafx" >/dev/null
-    for dylib in $(find . -name "*.dylib"); do
-      echo "Signing $dylib..."
+    jar xf "$CURRENT/$jar" >/dev/null
+    for lib in $(find . -name "*.dylib" -o -name "*.jnilib"); do
+      echo "Signing $lib..."
       codesign --strict --keychain build.keychain --force --timestamp --verbose=4 --prefix "io.conduktor." \
-                --options runtime --sign "$IDENTITY" "$dylib"
-      echo "Repackaging $dylib into $javafx..."
-      jar uf "$CURRENT/$javafx" "$dylib"
+                --options runtime --sign "$IDENTITY" "$lib"
+      echo "Repackaging $lib into $jar..."
+      jar uf "$CURRENT/$jar" "$lib"
     done
   done
+
   cd "$CURRENT"
 
   echo "Signing our jars..."
@@ -199,6 +200,9 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
       xcrun stapler staple "$PKG"
   else
       echo "Notarization failed (status: $STATUS), aborting the build..."
+      xcrun altool --notarization-info "$REQUEST_ID" \
+          --username "$MACOS_SIGNING_USERNAME" --password "$MACOS_SIGNING_SPECIFIC_PWD" \
+          | awk -F ': ' '/LogFileURL:/ { print $2; }'
       exit 1
   fi
 
