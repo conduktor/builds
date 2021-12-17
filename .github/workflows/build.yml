@@ -444,27 +444,14 @@ jobs:
           ./s3cmd-2.0.2/s3cmd --access_key="$AWS_ACCESS_KEY_ID" --secret_key="$AWS_SECRET_ACCESS_KEY" --host s3-eu-west-1.amazonaws.com --host-bucket="%(bucket)s.s3.amazonaws.com" put $VERSION.md s3://cdn-conduktor-io/releases/
           aws cloudfront create-invalidation --distribution-id E1UH3TV7ZSXK3G --paths "/releases*"
 
-      - name: Update website
-        continue-on-error: true
-        run: |
-          git config --global user.email "github-actions@conduktor.io"
-          git config --global user.name "Github Actions"
-          git clone https://unused:${{ secrets.WEBSITE_GITHUB_TOKEN }}@github.com/conduktor/www.conduktor.io web
-          cd web/_changelogs
-          VERSION=${{ github.event.client_payload.version }}
-          cat > $VERSION.md <<-EOF
-          ${{ steps.create_release_body.outputs.bodymd }}
-          EOF
-          git add $VERSION.md
-          git commit -m "Add changelog for version $VERSION"
-          git push
-
       - name: Update website-v2
         continue-on-error: true
         run: |
           git config --global user.email "github-actions@conduktor.io"
           git config --global user.name "Github Actions"
           git clone https://unused:${{ secrets.WEBSITE_GITHUB_TOKEN }}@github.com/conduktor/www.conduktor.io-v2 web-v2
+          # Switch to production branch
+          git checkout main
           cd web-v2/src/_changelogs
           VERSION=${{ github.event.client_payload.version }}
           cat > $VERSION.md <<-EOF
@@ -472,6 +459,10 @@ jobs:
           EOF
           git add $VERSION.md
           git commit -m "Add changelog for version $VERSION"
+          git push
+          # Switch back to staging branch, rebase and update
+          git checkout develop
+          git rebase main
           git push
 
 
