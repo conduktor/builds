@@ -447,9 +447,9 @@ jobs:
       - name: Update website-v2
         continue-on-error: true
         run: |
-          git config --global user.email "github-actions@conduktor.io"
-          git config --global user.name "Github Actions"
-          git clone https://unused:${{ secrets.WEBSITE_GITHUB_TOKEN }}@github.com/conduktor/www.conduktor.io-v2 web-v2
+          git config --global user.email "automation@conduktor.io"
+          git config --global user.name "Conduktor Bot"
+          git clone https://unused:${{ secrets.CONDUKTOR_BOT_TOKEN }}@github.com/conduktor/www.conduktor.io-v2 web-v2
           # Switch to production branch
           git checkout main
           cd web-v2/src/_changelogs
@@ -472,9 +472,9 @@ jobs:
             VERSION=${{ github.event.client_payload.version }}
             FILENAME=./macos/Conduktor-${VERSION}.pkg
             SHA=$(shasum -a 256 $FILENAME | head -c 64)
-            git config --global user.email "github-actions@conduktor.io"
-            git config --global user.name "Github Actions"
-            git clone https://unused:${{ secrets.WEBSITE_GITHUB_TOKEN }}@github.com/conduktor/homebrew-brew
+            git config --global user.email "automation@conduktor.io"
+            git config --global user.name "Conduktor Bot"
+            git clone https://unused:${{ secrets.CONDUKTOR_BOT_TOKEN }}@github.com/conduktor/homebrew-brew
             cd homebrew-brew/Casks/
             sed -i "2s/.*/  version \"${VERSION}\"/" conduktor.rb
             sed -i "3s/.*/  sha256 \"${SHA}\"/" conduktor.rb
