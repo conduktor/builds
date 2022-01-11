@@ -450,9 +450,9 @@ jobs:
           git config --global user.email "automation@conduktor.io"
           git config --global user.name "Conduktor Bot"
           git clone https://unused:${{ secrets.CONDUKTOR_BOT_TOKEN }}@github.com/conduktor/www.conduktor.io-v2 web-v2
+          cd web-v2/src/_changelogs
           # Switch to production branch
           git checkout main
-          cd web-v2/src/_changelogs
           VERSION=${{ github.event.client_payload.version }}
           cat > $VERSION.md <<-EOF
           ${{ steps.create_release_body.outputs.bodymd }}
@@ -465,22 +465,21 @@ jobs:
           git rebase main
           git push
 
-
       - name: Update the conduktor brew tap repository
         continue-on-error: true
         run: |
-            VERSION=${{ github.event.client_payload.version }}
-            FILENAME=./macos/Conduktor-${VERSION}.pkg
-            SHA=$(shasum -a 256 $FILENAME | head -c 64)
-            git config --global user.email "automation@conduktor.io"
-            git config --global user.name "Conduktor Bot"
-            git clone https://unused:${{ secrets.CONDUKTOR_BOT_TOKEN }}@github.com/conduktor/homebrew-brew
-            cd homebrew-brew/Casks/
-            sed -i "2s/.*/  version \"${VERSION}\"/" conduktor.rb
-            sed -i "3s/.*/  sha256 \"${SHA}\"/" conduktor.rb
-            git add conduktor.rb
-            git commit -m "Version updated to $VERSION"
-            git push
+          VERSION=${{ github.event.client_payload.version }}
+          FILENAME=./macos/Conduktor-${VERSION}.pkg
+          SHA=$(shasum -a 256 $FILENAME | head -c 64)
+          git config --global user.email "automation@conduktor.io"
+          git config --global user.name "Conduktor Bot"
+          git clone https://unused:${{ secrets.CONDUKTOR_BOT_TOKEN }}@github.com/conduktor/homebrew-brew
+          cd homebrew-brew/Casks/
+          sed -i "2s/.*/  version \"${VERSION}\"/" conduktor.rb
+          sed -i "3s/.*/  sha256 \"${SHA}\"/" conduktor.rb
+          git add conduktor.rb
+          git commit -m "Version updated to $VERSION"
+          git push
 
       - name: Slack notification
         uses: 8398a7/action-slack@v3
