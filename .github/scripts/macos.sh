@@ -110,7 +110,7 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
 
   echo "Signing unsigned native libs..."
   CURRENT=$(pwd)
-  for jar in $(find $APP/Contents/app -name "javafx*-mac.jar" -o -name "grpc-netty-shaded-*.jar" -o -name "conscrypt-openjdk-uber-*.jar"); do
+  for jar in $(find $APP/Contents/app -name "javafx*-mac.jar" -o -name "grpc-netty-shaded-*.jar" -o -name "conscrypt-openjdk-uber-*.jar" -o -name "netty-transport-native-*.jar"); do
     GOTO=$(mktemp -d)
     cd "$GOTO"
     jar xf "$CURRENT/$jar" >/dev/null
