@@ -25,7 +25,7 @@ CUSTOM_JRE_NAME="runtime"
 jlink --module-path "$FX_MODS_PATH" \
     --add-modules "$CDK_JLINK_MODULES" \
     --bind-services --output "$CUSTOM_JRE_NAME" \
-    --strip-debug --compress 2 --no-header-files --no-man-pages --strip-native-commands
+    --strip-debug --compress 2 --no-header-files --no-man-pages
 
 DEPLOY_RESOURCES_PATH=".github/resources"
 
@@ -84,7 +84,7 @@ function cdk_jpackage_single_user() {
 cdk_jpackage_single_user msi
 mv "${CDK_APP_NAME}-${VERSION}.msi" "${CDK_APP_NAME}-${VERSION}-single-user.msi"
 
-for TYPE in msi exe ; do 
+for TYPE in msi exe ; do
   cdk_jpackage $TYPE
 done
 

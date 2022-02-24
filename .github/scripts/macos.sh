@@ -49,7 +49,7 @@ rm -rf "$CUSTOM_JRE_NAME"
 jlink --module-path "$FX_MODS_PATH" \
     --add-modules "$CDK_JLINK_MODULES" \
     --bind-services --output "$CUSTOM_JRE_NAME" \
-    --strip-debug --compress 2 --no-header-files --no-man-pages --strip-native-commands
+    --strip-debug --compress 2 --no-header-files --no-man-pages
 
 ###############################################################################
 # Configure Keychain for signing
