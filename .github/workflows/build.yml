@@ -100,7 +100,7 @@ jobs:
           GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
         shell: bash
         working-directory: conduktor-desktop
-        run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace distZip -x test
+        run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace distZip
 
       - name: publish artifact
         uses: actions/upload-artifact@v1
