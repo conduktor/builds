@@ -36,7 +36,7 @@ function cdk_jpackage() {
   echo "Packaging ${TYPE}."
   jpackage --name "$CDK_APP_NAME" \
           --app-version "$VERSION" \
-          --description "$CDK_APP_DESCRIPTION" \
+          --description "$CDK_APP_NAME" \
           --type "$TYPE" \
           --icon "$DEPLOY_RESOURCES_PATH/Conduktor.ico" \
           --vendor "$CDK_VENDOR" \
