@@ -6,7 +6,7 @@ on:
 env:
   CDK_APP_NAME: Conduktor
   CDK_APP_DESCRIPTION: A beautiful and fully-featured desktop client for Apache Kafka
-  CDK_COPYRIGHT: © 2019-2021 Conduktor Inc
+  CDK_COPYRIGHT: © 2019-2022 Conduktor Inc
   CDK_VENDOR: Conduktor Inc
   CDK_JLINK_MODULES: java.base,java.se,javafx.web,javafx.media,java.desktop,java.management,java.naming,java.prefs,jdk.zipfs,jdk.unsupported,jdk.unsupported.desktop,jdk.httpserver,jdk.management.agent
   CDK_JAVA_OPTIONS: "-Xms128m -Xmx2048m -Dsun.io.useCanonPrefixCache=false -Djava.net.preferIPv4Stack=true -XX:+HeapDumpOnOutOfMemoryError -XX:+UseCompressedOops -Dfile.encoding=UTF-8 -Dprism.order=sw -Dsoftware.amazon.awssdk.http.service.impl=software.amazon.awssdk.http.urlconnection.UrlConnectionSdkHttpService"
@@ -252,13 +252,6 @@ jobs:
           unzip conduktor-windows/conduktor-${{ github.event.client_payload.version }}.zip
           .github/scripts/windows.sh ${{ github.event.client_payload.version }}
 
-      - name: Sign Windows packages
-        env:
-          WIN_SIGN_PFX: ${{ secrets.WIN_SIGN_PFX }}
-          WIN_SIGN_PFX_KEY: ${{ secrets.WIN_SIGN_PFX_KEY }}
-        run: .github\scripts\winsign.ps1 ${{ github.event.client_payload.version }}
-        shell: powershell
-
       - name: Prepare upload
         shell: bash
         run: |
@@ -273,12 +266,30 @@ jobs:
           name: windows
           path: windows
 
+  sign-windows:
+    runs-on: [self-hosted, ev-sign]
+    needs: windows
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v1
+        with:
+          name: windows
+
+      - run: .github\scripts\winsign-ev.ps1 ${{ github.event.client_payload.version }}
+        shell: powershell
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: windows
+          path: windows
+
   ###############################################################################
 
   release:
     name: "Prepare Github Release"
     runs-on: ubuntu-18.04
-    needs: [linux, windows, macos]
+    needs: [linux, sign-windows, macos]
     steps:
       - uses: actions/checkout@v2
       - name: Fetch Conduktor sources
