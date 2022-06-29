@@ -435,25 +435,38 @@ jobs:
       - name: Update links
         run: .github/scripts/update-links.sh ${{ secrets.REBRANDLY_TOKEN }} ${{ github.event.client_payload.version }}
 
-      - name: Update AWS
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Set up S3cmd cli
+        uses: s3-actions/s3cmd@v1.2.0
+        with:
+          provider: aws
+          region: 'eu-west-1'
+          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Update AWS S3 release bucket
         run: |
-          wget -q https://github.com/s3tools/s3cmd/releases/download/v2.0.2/s3cmd-2.0.2.tar.gz
-          tar xf s3cmd-2.0.2.tar.gz
-          sudo apt-get install -y python-dateutil
           VERSION=${{ github.event.client_payload.version }}
           echo $VERSION > latest
+
           cat > $VERSION.md <<-EOF
           ${{ steps.create_release_body.outputs.bodymd }}
           EOF
-          ./s3cmd-2.0.2/s3cmd --access_key="$AWS_ACCESS_KEY_ID" --secret_key="$AWS_SECRET_ACCESS_KEY" --host s3-eu-west-1.amazonaws.com --host-bucket="%(bucket)s.s3.amazonaws.com" get s3://cdn-conduktor-io/releases/all all
+
+          s3cmd get s3://cdn-conduktor-io/releases/all all
           echo $VERSION >> all
-          ./s3cmd-2.0.2/s3cmd --access_key="$AWS_ACCESS_KEY_ID" --secret_key="$AWS_SECRET_ACCESS_KEY" --host s3-eu-west-1.amazonaws.com --host-bucket="%(bucket)s.s3.amazonaws.com" sync all s3://cdn-conduktor-io/releases/all
-          ./s3cmd-2.0.2/s3cmd --access_key="$AWS_ACCESS_KEY_ID" --secret_key="$AWS_SECRET_ACCESS_KEY" --host s3-eu-west-1.amazonaws.com --host-bucket="%(bucket)s.s3.amazonaws.com" sync latest s3://cdn-conduktor-io/releases/latest
-          ./s3cmd-2.0.2/s3cmd --access_key="$AWS_ACCESS_KEY_ID" --secret_key="$AWS_SECRET_ACCESS_KEY" --host s3-eu-west-1.amazonaws.com --host-bucket="%(bucket)s.s3.amazonaws.com" put $VERSION.md s3://cdn-conduktor-io/releases/
-          aws cloudfront create-invalidation --distribution-id E1UH3TV7ZSXK3G --paths "/releases*"
+          s3cmd sync all s3://cdn-conduktor-io/releases/all
+          s3cmd sync latest s3://cdn-conduktor-io/releases/latest
+          s3cmd put $VERSION.md s3://cdn-conduktor-io/releases/
+
+      - name: Invalidate Cloudfront cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id "E1UH3TV7ZSXK3G" --paths "/releases*"
 
       - name: Update website-v2
         continue-on-error: true
