@@ -440,6 +440,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: 'eu-west-1'
 
       - name: Set up S3cmd cli
         uses: s3-actions/s3cmd@v1.2.0
