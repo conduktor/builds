@@ -451,6 +451,7 @@ jobs:
           secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Update AWS S3 release bucket
+        continue-on-error: true
         run: |
           VERSION=${{ github.event.client_payload.version }}
           echo $VERSION > latest
@@ -466,6 +467,7 @@ jobs:
           s3cmd put $VERSION.md s3://cdn-conduktor-io/releases/
 
       - name: Invalidate Cloudfront cache
+        continue-on-error: true
         run: |
           aws cloudfront create-invalidation --distribution-id "E1UH3TV7ZSXK3G" --paths "/releases*"
 
