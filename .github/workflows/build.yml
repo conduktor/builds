@@ -6,7 +6,7 @@ on:
 env:
   CDK_APP_NAME: Conduktor
   CDK_APP_DESCRIPTION: A beautiful and fully-featured desktop client for Apache Kafka
-  CDK_COPYRIGHT: © 2019-2022 Conduktor Inc
+  CDK_COPYRIGHT: © 2019-2023 Conduktor Inc
   CDK_VENDOR: Conduktor Inc
   CDK_JLINK_MODULES: java.base,java.se,javafx.web,javafx.media,java.desktop,java.management,java.naming,java.prefs,jdk.zipfs,jdk.unsupported,jdk.unsupported.desktop,jdk.httpserver,jdk.management.agent
   CDK_JAVA_OPTIONS: "-Xms128m -Xmx2048m -Dsun.io.useCanonPrefixCache=false -Djava.net.preferIPv4Stack=true -XX:+HeapDumpOnOutOfMemoryError -XX:+UseCompressedOops -Dfile.encoding=UTF-8 -Dprism.order=sw -Dsoftware.amazon.awssdk.http.service.impl=software.amazon.awssdk.http.urlconnection.UrlConnectionSdkHttpService"
