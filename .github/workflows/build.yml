@@ -476,14 +476,18 @@ jobs:
         run: |
           git config --global user.email "automation@conduktor.io"
           git config --global user.name "Conduktor Bot"
-          git clone https://unused:${{ secrets.CONDUKTOR_BOT_TOKEN }}@github.com/conduktor/www.conduktor.io-v2 web-v2
-          cd web-v2/src/_changelogs
+          git clone https://unused:${{ secrets.CONDUKTOR_BOT_TOKEN }}@github.com/conduktor/conduktor.io www
+          cd www/data/changelog/desktop
           # Switch to production branch
           git checkout main
           VERSION=${{ github.event.client_payload.version }}
           cat > $VERSION.md <<-EOF
           ${{ steps.create_release_body.outputs.bodymd }}
           EOF
+          echo '-------'
+          echo $VERSION
+          cat $VERSION.md
+          echo '-------'          
           git add $VERSION.md
           git commit -m "Add changelog for version $VERSION"
           git push
