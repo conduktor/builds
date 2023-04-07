@@ -1,4 +1,5 @@
 <img src="https://www.conduktor.io/svgs/logo/black.svg" width="256">
+
 [![deploy-prod](https://github.com/conduktor/builds/actions/workflows/build.yml/badge.svg)](https://github.com/conduktor/builds/actions/workflows/build.yml)
 
 # Releases
