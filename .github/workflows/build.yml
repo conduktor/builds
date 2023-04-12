@@ -17,7 +17,7 @@ env:
 jobs:
   zip-linux:
     name: build conduktor.zip for linux
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
@@ -198,7 +198,7 @@ jobs:
   ###############################################################################
 
   linux:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     needs: zip-linux
 
     steps:
@@ -288,7 +288,7 @@ jobs:
 
   release:
     name: "Prepare Github Release"
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     needs: [linux, sign-windows, macos]
     steps:
       - uses: actions/checkout@v2
