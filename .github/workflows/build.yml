@@ -477,7 +477,7 @@ jobs:
           git config --global user.email "automation@conduktor.io"
           git config --global user.name "Conduktor Bot"
           git clone https://unused:${{ secrets.CONDUKTOR_BOT_TOKEN }}@github.com/conduktor/conduktor.io www
-          cd apps/web/www/data/changelog/desktop
+          cd apps/web/data/changelog/desktop
           # Switch to production branch
           git checkout main
           VERSION=${{ github.event.client_payload.version }}
