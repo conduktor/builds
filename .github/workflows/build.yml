@@ -270,7 +270,7 @@ jobs:
           MACOS_SIGNING_USERNAME: ${{ secrets.MACOS_SIGNING_USERNAME }}
           MACOS_SIGNING_SPECIFIC_PWD: ${{ secrets.MACOS_SIGNING_SPECIFIC_PWD }}
         run: |
-          unzip conduktor-macos/conduktor-${{ github.event.client_payload.version }}.zip
+          unzip conduktor-macos-arm/conduktor-${{ github.event.client_payload.version }}.zip
           .github/scripts/macos.sh ${{ github.event.client_payload.version }}
 
       - name: Prepare upload
