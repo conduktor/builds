@@ -11,9 +11,12 @@ Try
 {
   cd windows
 
-  Write-Host "Signing .exe"
-  & $SignTool sign /v /d "Conduktor Desktop v$Version" /du "https://www.conduktor.io" /tr "http://timestamp.digicert.com" /fd sha256 /td sha256 /n "Conduktor, Inc" "Conduktor-$Version.exe"
-  Start-Sleep -s 15
+  # SIGNING EXE IS FAILING FOR UNKNOWN REASONS
+  # exactly this: https://stackoverflow.com/questions/77965240/failing-to-sign-jpackage-exe-installer
+  # But we actually don't expose it to our users so let's not bother
+  #Write-Host "Signing .exe"
+  #& $SignTool sign /v /d "Conduktor Desktop v$Version" /du "https://www.conduktor.io" /tr "http://timestamp.digicert.com" /fd sha256 /td sha256 /n "Conduktor, Inc" "Conduktor-$Version.exe"
+  #Start-Sleep -s 15
 
   Write-Host "Signing .msi"
   & $SignTool sign /v /d "Conduktor Desktop v$Version" /du "https://www.conduktor.io" /tr "http://timestamp.digicert.com" /fd sha256 /td sha256 /n "Conduktor, Inc" "Conduktor-$Version.msi"

@@ -15,8 +15,8 @@ Try
   Write-Host "Signing .exe"
   #& $SignTool sign /v /d "Conduktor Desktop v$Version" /du "https://www.conduktor.io" /f conduktor.pfx /p "$env:WIN_SIGN_PFX_KEY" /t "http://timestamp.comodoca.com" /fd sha1 "Conduktor-$Version.exe}"
   #Start-Sleep -s 15
-  & $SignTool sign /v /d "Conduktor Desktop v$Version" /du "https://www.conduktor.io" /f conduktor.pfx /p "$env:WIN_SIGN_PFX_KEY" /tr "http://timestamp.comodoca.com?td=sha256" /fd sha256 /td sha256 /as "Conduktor-$Version.exe"
-  Start-Sleep -s 15
+  #& $SignTool sign /v /d "Conduktor Desktop v$Version" /du "https://www.conduktor.io" /f conduktor.pfx /p "$env:WIN_SIGN_PFX_KEY" /tr "http://timestamp.comodoca.com?td=sha256" /fd sha256 /td sha256 /as "Conduktor-$Version.exe"
+  #Start-Sleep -s 15
 
   Write-Host "Signing .msi"
   & $SignTool sign /v /d "Conduktor Desktop v$Version" /du "https://www.conduktor.io" /f conduktor.pfx /p "$env:WIN_SIGN_PFX_KEY" /tr "http://timestamp.comodoca.com?td=sha256" /fd sha256 /td sha256 "Conduktor-$Version.msi"

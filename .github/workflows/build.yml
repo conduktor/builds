@@ -347,11 +347,11 @@ jobs:
         shell: bash
         run: |
           mkdir -p windows
-          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.exe windows
+          #mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.exe windows
           mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.msi windows
           mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}-single-user.msi windows
 
-      - name: Upload Windows .msi x2 and .exe
+      - name: Upload Windows .msi
         uses: actions/upload-artifact@v1
         with:
           name: windows
@@ -479,15 +479,15 @@ jobs:
       #     asset_name: Conduktor-${{ github.event.client_payload.version }}.dmg
       #     asset_content_type: application/x-apple-diskimage
 
-      - name: Upload Windows .exe
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./windows/Conduktor-${{ github.event.client_payload.version }}.exe
-          asset_name: Conduktor-${{ github.event.client_payload.version }}.exe
-          asset_content_type: application/x-apple-diskimage
+      #- name: Upload Windows .exe
+      #  uses: actions/upload-release-asset@v1.0.1
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #  with:
+      #    upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #    asset_path: ./windows/Conduktor-${{ github.event.client_payload.version }}.exe
+      #    asset_name: Conduktor-${{ github.event.client_payload.version }}.exe
+      #    asset_content_type: application/x-apple-diskimage
 
       - name: Upload Linux .deb
         uses: actions/upload-release-asset@v1.0.1

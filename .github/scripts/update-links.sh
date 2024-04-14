@@ -25,9 +25,9 @@ if $UPDATE_ONLY; then
 
 	#
 
-	SYSTEM=win
-	EXTENSION=exe
-	curl -sSf -o /dev/null 'https://api.rebrandly.com/v1/links/10e985a741c241918e8f2451aee5fb01' -XPOST -H "apikey: $API" -H 'Content-Type: application/json' -d"{\"title\": \"Conduktor ${SYSTEM} .${EXTENSION}\", \"destination\": \"https://github.com/conduktor/builds/releases/download/v${VERSION}/Conduktor-${VERSION}.${EXTENSION}\"}"
+	#SYSTEM=win
+	#EXTENSION=exe
+	#curl -sSf -o /dev/null 'https://api.rebrandly.com/v1/links/10e985a741c241918e8f2451aee5fb01' -XPOST -H "apikey: $API" -H 'Content-Type: application/json' -d"{\"title\": \"Conduktor ${SYSTEM} .${EXTENSION}\", \"destination\": \"https://github.com/conduktor/builds/releases/download/v${VERSION}/Conduktor-${VERSION}.${EXTENSION}\"}"
 
 	SYSTEM=win
 	EXTENSION=msi
@@ -73,9 +73,9 @@ else
 
 	#
 
-	SYSTEM=win
-	EXTENSION=exe
-	curl -sSf -o /dev/null 'https://api.rebrandly.com/v1/links' -XPOST -H "apikey: $API" -H 'Content-Type: application/json' -d"{\"title\": \"Conduktor ${SYSTEM} .${EXTENSION}\", \"domain\":{ \"fullName\": \"releases.conduktor.io\"}, \"slashtag\": \"${SYSTEM}-${EXTENSION}\", \"destination\": \"https://github.com/conduktor/builds/releases/download/v${VERSION}/Conduktor-${VERSION}.${EXTENSION}\"}"
+	#SYSTEM=win
+	#EXTENSION=exe
+	#curl -sSf -o /dev/null 'https://api.rebrandly.com/v1/links' -XPOST -H "apikey: $API" -H 'Content-Type: application/json' -d"{\"title\": \"Conduktor ${SYSTEM} .${EXTENSION}\", \"domain\":{ \"fullName\": \"releases.conduktor.io\"}, \"slashtag\": \"${SYSTEM}-${EXTENSION}\", \"destination\": \"https://github.com/conduktor/builds/releases/download/v${VERSION}/Conduktor-${VERSION}.${EXTENSION}\"}"
 
 	SYSTEM=win
 	EXTENSION=msi

@@ -84,7 +84,5 @@ function cdk_jpackage_single_user() {
 cdk_jpackage_single_user msi
 mv "${CDK_APP_NAME}-${VERSION}.msi" "${CDK_APP_NAME}-${VERSION}-single-user.msi"
 
-for TYPE in msi exe ; do
-  cdk_jpackage $TYPE
-done
+cdk_jpackage msi
 
