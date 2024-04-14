@@ -117,9 +117,10 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
   IDENTITY_INSTALLER="Developer ID Installer: Conduktor LLC (572B6PF39A)"
   ENTITLEMENTS_PATH="$DEPLOY_RESOURCES_PATH/Conduktor.entitlements"
 
+  echo "------------------------------------------------------------"
   echo "Signing unsigned native libs..."
   CURRENT=$(pwd)
-  for jar in $(find $APP/Contents/app -name "javafx*-mac.jar" -o -name "grpc-netty-shaded-*.jar" -o -name "conscrypt-openjdk-uber-*.jar" -o -name "netty-transport-native-*.jar"); do
+  for jar in $(find $APP/Contents/app -name "javafx*-mac-*.jar" -o -name "grpc-netty-shaded-*.jar" -o -name "conscrypt-openjdk-uber-*.jar" -o -name "netty-transport-native-*.jar"); do
     GOTO=$(mktemp -d)
     cd "$GOTO"
     jar xf "$CURRENT/$jar" >/dev/null
@@ -134,23 +135,29 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
 
   cd "$CURRENT"
 
+  echo "------------------------------------------------------------"
   echo "Signing our jars..."
   for jar in $(find $APP/Contents/app -name "*.jar"); do
+    echo "Signing $jar..."
     codesign --strict --keychain build.keychain --timestamp --verbose=4 --prefix "io.conduktor." \
               --options runtime --force --entitlements "$ENTITLEMENTS_PATH" --sign "$IDENTITY" \
               "$jar"
   done
 
+  echo "------------------------------------------------------------"
   echo "Signing our runtime..."
-  for runtime in $(find $APP/Contents/runtime/Contents/Home/lib -name "*.dylib") $APP/Contents/runtime/; do
+  for runtime in $(find $APP/Contents/runtime/Contents/Home/lib -name "*.dylib") $(find $APP/Contents/runtime/ -type f -perm +111) $APP/Contents/runtime/; do
+    echo "Signing $runtime..."
     codesign --strict --keychain build.keychain --force --timestamp --verbose=4 --prefix "io.conduktor." \
               --deep --options runtime --sign "$IDENTITY" "$runtime"
   done
 
+  echo "------------------------------------------------------------"
   echo "Signing the app itself"
   codesign --strict --keychain build.keychain --force --timestamp --verbose=4 --prefix "io.conduktor." \
            --deep --entitlements "$ENTITLEMENTS_PATH" --options runtime --sign "$IDENTITY" "$APP"
 
+  echo "------------------------------------------------------------"
   echo "Finishing packaging with signed content..."
   jpackage --name "$CDK_APP_NAME" \
               --app-version "$VERSION" \
@@ -175,17 +182,23 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
   # cleanup
   security delete-keychain build.keychain
 
-  xcrun notarytool submit "$PKG" --wait --team-id 572B6PF39A --apple-id "$MACOS_SIGNING_USERNAME" --password "$MACOS_SIGNING_SPECIFIC_PWD"
+  NOT=$(xcrun notarytool submit "$PKG" --wait --team-id 572B6PF39A --apple-id "$MACOS_SIGNING_USERNAME" --password "$MACOS_SIGNING_SPECIFIC_PWD" -f json)
+  # returns something like {"id":"43b6b432-cdec-4be5-9945-a9f618710c7c","status":"Invalid","message":"Processing complete"}
+  # and even if it's invalid, it's still return 0 as exit code...
+  echo "$NOT"
+  REQUEST_ID=$(echo "$NOT" | jq -r '.id')
+  STATUS=$(echo "$NOT" | jq -r '.status')
 
-  if [ $? -eq 0 ]; then
+  if [ "$STATUS" = "Invalid" ]; then
+      echo "Notarization failed, aborting the build..."
+      
+      xcrun notarytool log "$REQUEST_ID" \
+        --team-id 572B6PF39A --apple-id "$MACOS_SIGNING_USERNAME" --password "$MACOS_SIGNING_SPECIFIC_PWD" \
+        -f json
+      exit 1
+  else
       echo "Notarization succeeded, stapling receipt to disk image"
       xcrun stapler staple "$PKG"
-  else
-      echo "Notarization failed (status: $STATUS), aborting the build..."
-      xcrun notarytool info "$REQUEST_ID" \
-        --team-id 572B6PF39A --apple-id "$MACOS_SIGNING_USERNAME" --password "$MACOS_SIGNING_SPECIFIC_PWD" \
-        --output-format json | jq -r '.logFileURL'
-      exit 1
   fi
 
 else
