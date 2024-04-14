@@ -71,6 +71,8 @@ MACOS_SIGNING_IDENTITY_B64=${MACOS_SIGNING_IDENTITY_B64:-}
 MACOS_SIGNING_USERNAME=${MACOS_SIGNING_USERNAME:-}
 MACOS_SIGNING_SPECIFIC_PWD=${MACOS_SIGNING_SPECIFIC_PWD:-}
 
+PKG="${CDK_APP_NAME}-${VERSION}.pkg"
+
 if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_B64" != "" ]; then
   if [ "$MACOS_SIGNING_USERNAME" = "" ] || [ "$MACOS_SIGNING_SPECIFIC_PWD" = "" ]; then
     echo "Missing auth to notarization service (MACOS_SIGNING_*) aborting..."
@@ -167,49 +169,22 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
   rm -rf "$APP"
 
   echo "Signing the package..."
-  PKG="${CDK_APP_NAME}-${VERSION}.pkg"
-  productsign --keychain build.keychain --sign "$IDENTITY_INSTALLER" "$PKG" "${CDK_APP_NAME}-${VERSION}-signed.pkg"
+    productsign --keychain build.keychain --sign "$IDENTITY_INSTALLER" "$PKG" "${CDK_APP_NAME}-${VERSION}-signed.pkg"
   mv "${CDK_APP_NAME}-${VERSION}-signed.pkg" "$PKG"
 
   # cleanup
   security delete-keychain build.keychain
 
-  REQUEST_ID=$(xcrun altool \
-    --notarize-app \
-    --primary-bundle-id "io.conduktor" \
-    --username "$MACOS_SIGNING_USERNAME" --password "$MACOS_SIGNING_SPECIFIC_PWD" \
-    --file "$PKG" | grep RequestUUID | sed -e 's/RequestUUID = //')
+  xcrun notarytool submit "$PKG" --wait --team-id 572B6PF39A --apple-id "$MACOS_SIGNING_USERNAME" --password "$MACOS_SIGNING_SPECIFIC_PWD"
 
-  echo "Request: $REQUEST_ID"
-
-  # sometimes, the check fails instantly because Apple can't find the ID they just gave us!
-  # so we wait a long time here (it's slow anyway)
-  sleep 60
-
-  # Wait until the request is done processing.
-  STATUS=""
-  while true; do
-      sleep 20
-      STATUS=$(xcrun altool --notarization-info "$REQUEST_ID" \
-            --username "$MACOS_SIGNING_USERNAME" --password "$MACOS_SIGNING_SPECIFIC_PWD" \
-            | awk -F ': ' '/Status:/ { print $2; }')
-      if [ "$STATUS" != "in progress" ]; then
-          break;
-      fi
-      echo "$(date) ..."
-  done
-
-  echo
-
-  # See if notarization succeeded, and if so, staple the ticket to the disk image.
-  if [ "$STATUS" = "success" ]; then
+  if [ $? -eq 0 ]; then
       echo "Notarization succeeded, stapling receipt to disk image"
       xcrun stapler staple "$PKG"
   else
       echo "Notarization failed (status: $STATUS), aborting the build..."
-      xcrun altool --notarization-info "$REQUEST_ID" \
-          --username "$MACOS_SIGNING_USERNAME" --password "$MACOS_SIGNING_SPECIFIC_PWD" \
-          | awk -F ': ' '/LogFileURL:/ { print $2; }'
+      xcrun notarytool info "$REQUEST_ID" \
+        --team-id 572B6PF39A --apple-id "$MACOS_SIGNING_USERNAME" --password "$MACOS_SIGNING_SPECIFIC_PWD" \
+        --output-format json | jq -r '.logFileURL'
       exit 1
   fi
 
