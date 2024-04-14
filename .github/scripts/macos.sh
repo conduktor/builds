@@ -3,7 +3,14 @@
 set -o errexit -o pipefail -o nounset
 IFS=$'\t\n'
 
-FX="https://gluonhq.com/download/javafx-14-jmods-mac"
+FX_ARM="https://download2.gluonhq.com/openjfx/17.0.10/openjfx-17.0.10_osx-aarch64_bin-jmods.zip"
+FX_X64=https://download2.gluonhq.com/openjfx/17.0.10/openjfx-17.0.10_osx-x64_bin-jmods.zip
+
+if [ "$(uname -m)" = "arm64" ]; then
+  FX=$FX_ARM
+else
+  FX=$FX_X64
+fi
 
 CURRENT_DIR=$(pwd)
 echo "Current dir: $CURRENT_DIR"
@@ -37,10 +44,10 @@ fi
 
 echo "Downloading JavaFX Jmods..."
 curl -sLO $FX
-unzip -oq javafx-*-jmods-mac
+unzip -oq openjfx-17.0.10_osx-*-jmods.zip
 # cleanup
-rm -f javafx-14-jmods-mac
-FX_MODS_PATH="./javafx-jmods-14"
+rm -f openjfx-17.0.10_osx-*-jmods.zip
+FX_MODS_PATH="./javafx-jmods-17.0.10"
 
 echo "Building custom JRE..."
 CUSTOM_JRE_NAME="runtime"
@@ -254,3 +261,12 @@ fi
 
 # cleanup
 rm -rf "$CUSTOM_JRE_NAME" "$FX_MODS_PATH"
+
+# From Conduktor-2.0.0.pkg to
+# -> Conduktor-2.0.0-intel.pkg
+# -> Conduktor-2.0.0-apple-silicon.pkg
+if [ "$(uname -m)" = "arm64" ]; then
+  mv "$PKG" "${CDK_APP_NAME}-${VERSION}-apple-silicon.pkg"
+else
+  mv "$PKG" "${CDK_APP_NAME}-${VERSION}-intel.pkg"
+fi

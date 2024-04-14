@@ -1,15 +1,15 @@
 name: Build
 on:
   repository_dispatch:
-    types: [release]
+    types: [release, prerelease]
 
 env:
   CDK_APP_NAME: Conduktor
   CDK_APP_DESCRIPTION: A beautiful and fully-featured desktop client for Apache Kafka
-  CDK_COPYRIGHT: © 2019-2023 Conduktor Inc
+  CDK_COPYRIGHT: © 2019-2024 Conduktor Inc
   CDK_VENDOR: Conduktor Inc
   CDK_JLINK_MODULES: java.base,java.se,javafx.web,javafx.media,java.desktop,java.management,java.naming,java.prefs,jdk.zipfs,jdk.unsupported,jdk.unsupported.desktop,jdk.httpserver,jdk.management.agent
-  CDK_JAVA_OPTIONS: "-Xms128m -Xmx2048m -Dsun.io.useCanonPrefixCache=false -Djava.net.preferIPv4Stack=true -XX:+HeapDumpOnOutOfMemoryError -XX:+UseCompressedOops -Dfile.encoding=UTF-8 -Dprism.order=sw -Dsoftware.amazon.awssdk.http.service.impl=software.amazon.awssdk.http.urlconnection.UrlConnectionSdkHttpService"
+  CDK_JAVA_OPTIONS: "-Xms128m -Xmx2048m -Dsun.io.useCanonPrefixCache=false -Djava.net.preferIPv4Stack=true -XX:+HeapDumpOnOutOfMemoryError -XX:+UseCompressedOops -Dfile.encoding=UTF-8 --add-opens javafx.controls/javafx.scene.control=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene=ALL-UNNAMED --add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-exports=java.base/sun.security.util=ALL-UNNAMED --add-exports=java.base/sun.security.jca=ALL-UNNAMED"
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
 ###############################################################################
@@ -21,9 +21,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
-        uses: joschi/setup-jdk@v2
+        uses: actions/setup-java@v3
         with:
-          java-version: openjdk14
+          distribution: 'temurin'
+          java-version: '17'
       - name: Fetch Conduktor sources
         run: |
           git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GH_BUILD_TOKEN}}@github.com/conduktor/conduktor-desktop.git
@@ -67,9 +68,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
-        uses: joschi/setup-jdk@v2
+        uses: actions/setup-java@v3
         with:
-          java-version: openjdk14
+          distribution: 'temurin'
+          java-version: '17'
       - name: Fetch Conduktor sources
         run: |
           git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GH_BUILD_TOKEN}}@github.com/conduktor/conduktor-desktop.git
@@ -108,15 +110,16 @@ jobs:
           name: conduktor-windows
           path: "./conduktor-desktop/desktop/build/distributions/conduktor-${{ github.event.client_payload.version }}.zip"
 
-  zip-macos:
-    name: build conduktor.zip for macos
+  zip-macos-intel:
+    name: build conduktor.zip for macOS Intel
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
-        uses: joschi/setup-jdk@v2
+        uses: actions/setup-java@v3
         with:
-          java-version: openjdk14
+          distribution: 'temurin'
+          java-version: '17'
       - name: Fetch Conduktor sources
         run: |
           git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GH_BUILD_TOKEN}}@github.com/conduktor/conduktor-desktop.git
@@ -153,25 +156,112 @@ jobs:
       - name: publish artifact
         uses: actions/upload-artifact@v1
         with:
-          name: conduktor-macos
+          name: conduktor-macos-intel
+          path: "./conduktor-desktop/desktop/build/distributions/conduktor-${{ github.event.client_payload.version }}.zip"
+
+  zip-macos-arm:
+    name: build conduktor.zip for macOS Apple Silicon
+    runs-on: macos-13-xlarge
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Fetch Conduktor sources
+        run: |
+          git clone --single-branch --branch ${{ github.event.client_payload.tag }} --depth 1 https://osef:${{secrets.GH_BUILD_TOKEN}}@github.com/conduktor/conduktor-desktop.git
+
+      - name: Clean up existing cache
+        run: rm -rf ~/.gradle/caches/*
+      - name: Gradle cache
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradlexx-${{ hashFiles('**/*.gradle.kts') }}
+          restore-keys: |
+            ${{ runner.os }}-gradlexx-
+      - name: Gradle wrapper cache
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-wrapperxx-${{ hashFiles('**/*.gradle.kts') }}
+          restore-keys: |
+            ${{ runner.os }}-wrapperxx-
+      - name: m2 wrapper cache
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2
+
+      - name: build conduktor.zip
+        env:
+          GH_PACKAGES_USERNAME: ${{ secrets.GH_PACKAGES_USERNAME }}
+          GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+        working-directory: conduktor-desktop
+        run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace distZip
+
+      - name: publish artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: conduktor-macos-arm
           path: "./conduktor-desktop/desktop/build/distributions/conduktor-${{ github.event.client_payload.version }}.zip"
 
   ###############################################################################
 
-  macos:
+  macos-intel:
     runs-on: macos-11
-    needs: zip-macos
+    needs: zip-macos-intel
 
     steps:
       - uses: actions/checkout@v2
-      - uses: joschi/setup-jdk@v2
+      - uses: actions/setup-java@v3
         with:
-          java-version: openjdk14
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Download built distribution
         uses: actions/download-artifact@v1
         with:
-          name: conduktor-macos
+          name: conduktor-macos-intel
+
+      - name: Build macOS packages
+        env:
+          MACOS_SIGNING_IDENTITY_PASSPHRASE: ${{ secrets.MACOS_SIGNING_IDENTITY_PASSPHRASE }}
+          MACOS_SIGNING_IDENTITY_B64: ${{ secrets.MACOS_SIGNING_IDENTITY_B64 }}
+          MACOS_SIGNING_USERNAME: ${{ secrets.MACOS_SIGNING_USERNAME }}
+          MACOS_SIGNING_SPECIFIC_PWD: ${{ secrets.MACOS_SIGNING_SPECIFIC_PWD }}
+        run: |
+          unzip conduktor-macos-intel/conduktor-${{ github.event.client_payload.version }}.zip
+          .github/scripts/macos.sh ${{ github.event.client_payload.version }}
+
+      - name: Prepare upload
+        run: |
+          mkdir -p macos-intel
+          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}-intel.pkg macos-intel
+
+      - name: Upload macOS .pkg & .dmg
+        uses: actions/upload-artifact@v1
+        with:
+          name: macos-intel
+          path: macos-intel
+  
+  macos-arm:
+    runs-on: macos-13-xlarge
+    needs: zip-macos-arm
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download built distribution
+        uses: actions/download-artifact@v1
+        with:
+          name: conduktor-macos-arm
 
       - name: Build macOS packages
         env:
@@ -185,15 +275,14 @@ jobs:
 
       - name: Prepare upload
         run: |
-          mkdir -p macos
-          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.pkg macos
-          #mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.dmg macos
+          mkdir -p macos-arm
+          mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}-apple-silicon.pkg macos-arm
 
       - name: Upload macOS .pkg & .dmg
         uses: actions/upload-artifact@v1
         with:
-          name: macos
-          path: macos
+          name: macos-arm
+          path: macos-arm        
 
   ###############################################################################
 
@@ -203,9 +292,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: joschi/setup-jdk@v2
+      - uses: actions/setup-java@v3
         with:
-          java-version: openjdk14
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Download built distribution
         uses: actions/download-artifact@v1
@@ -237,9 +327,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: joschi/setup-jdk@v2
+      - uses: actions/setup-java@v3
         with:
-          java-version: openjdk14
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Download built distribution
         uses: actions/download-artifact@v1
@@ -289,7 +380,7 @@ jobs:
   release:
     name: "Prepare Github Release"
     runs-on: ubuntu-20.04
-    needs: [linux, sign-windows, macos]
+    needs: [linux, sign-windows, macos-intel, macos-arm]
     steps:
       - uses: actions/checkout@v2
       - name: Fetch Conduktor sources
@@ -306,13 +397,19 @@ jobs:
           name: conduktor-windows
       - uses: actions/download-artifact@v1
         with:
-          name: conduktor-macos
+          name: conduktor-macos-intel
+      - uses: actions/download-artifact@v1
+        with:
+          name: conduktor-macos-arm
       - uses: actions/download-artifact@v1
         with:
           name: conduktor-linux
       - uses: actions/download-artifact@v1
         with:
-          name: macos
+          name: macos-intel
+      - uses: actions/download-artifact@v1
+        with:
+          name: macos-arm
       - uses: actions/download-artifact@v1
         with:
           name: linux
@@ -328,18 +425,28 @@ jobs:
         with:
           tag_name: ${{ github.event.client_payload.tag }}
           release_name: ${{ steps.create_release_body.outputs.name }}
-          draft: false
-          prerelease: false
+          draft: ${{ github.event.action == 'prerelease' }}
+          prerelease: ${{ github.event.action == 'prerelease' }}
           body: ${{ steps.create_release_body.outputs.body }}
 
-      - name: Upload macOS .pkg
+      - name: Upload macOS Intel .pkg
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./macos/Conduktor-${{ github.event.client_payload.version }}.pkg
-          asset_name: Conduktor-${{ github.event.client_payload.version }}.pkg
+          asset_path: ./macos-intel/Conduktor-${{ github.event.client_payload.version }}-intel.pkg
+          asset_name: Conduktor-${{ github.event.client_payload.version }}-intel.pkg
+          asset_content_type: application/x-newton-compatible-pkg
+
+      - name: Upload macOS Apple Silicon .pkg
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./macos-arm/Conduktor-${{ github.event.client_payload.version }}-apple-silicon.pkg
+          asset_name: Conduktor-${{ github.event.client_payload.version }}-apple-silicon.pkg
           asset_content_type: application/x-newton-compatible-pkg
 
       - name: Upload Windows .msi
@@ -412,14 +519,24 @@ jobs:
           asset_name: Conduktor-win-${{ github.event.client_payload.version }}.zip
           asset_content_type: application/zip
 
-      - name: Upload macOS .zip
+      - name: Upload macOS .zip for Intel
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./conduktor-macos/conduktor-${{ github.event.client_payload.version }}.zip
-          asset_name: Conduktor-macOS-${{ github.event.client_payload.version }}.zip
+          asset_path: ./conduktor-macos-intel/conduktor-${{ github.event.client_payload.version }}-intel.zip
+          asset_name: Conduktor-macOS-${{ github.event.client_payload.version }}-intel.zip
+          asset_content_type: application/zip
+
+      - name: Upload macOS .zip for Apple Silicon
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./conduktor-macos-arm/conduktor-${{ github.event.client_payload.version }}-apple-silicon.zip
+          asset_name: Conduktor-macOS-${{ github.event.client_payload.version }}-apple-silicon.zip
           asset_content_type: application/zip
 
       - name: Upload Linux .rpm
@@ -433,10 +550,12 @@ jobs:
           asset_content_type: application/x-redhat-package-manager
 
       - name: Update links
+        if: github.event.action == 'release'
         run: .github/scripts/update-links.sh ${{ secrets.REBRANDLY_TOKEN }} ${{ github.event.client_payload.version }}
 
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v1
+        if: github.event.action == 'release'
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -444,6 +563,7 @@ jobs:
 
       - name: Set up S3cmd cli
         uses: s3-actions/s3cmd@v1.2.0
+        if: github.event.action == 'release'
         with:
           provider: aws
           region: 'eu-west-1'
@@ -452,6 +572,7 @@ jobs:
 
       - name: Update AWS S3 release bucket
         continue-on-error: true
+        if: github.event.action == 'release'
         run: |
           VERSION=${{ github.event.client_payload.version }}
           echo $VERSION > latest
@@ -468,11 +589,13 @@ jobs:
 
       - name: Invalidate Cloudfront cache
         continue-on-error: true
+        if: github.event.action == 'release'
         run: |
           aws cloudfront create-invalidation --distribution-id "E1UH3TV7ZSXK3G" --paths "/releases*"
 
       - name: Update website-v2
         continue-on-error: true
+        if: github.event.action == 'release'
         run: |
           git config --global user.email "automation@conduktor.io"
           git config --global user.name "Conduktor Bot"
@@ -498,6 +621,7 @@ jobs:
 
       - name: Update the conduktor brew tap repository
         continue-on-error: true
+        if: github.event.action == 'release'
         run: |
           VERSION=${{ github.event.client_payload.version }}
           FILENAME=./macos/Conduktor-${VERSION}.pkg
@@ -514,7 +638,7 @@ jobs:
 
       - name: Slack notification
         uses: 8398a7/action-slack@v3
-        if: success()
+        if: success() && github.event.action == 'release'
         continue-on-error: true
         with:
           status: custom
