@@ -525,7 +525,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./conduktor-macos-intel/conduktor-${{ github.event.client_payload.version }}-intel.zip
+          asset_path: ./conduktor-macos-intel/conduktor-${{ github.event.client_payload.version }}.zip
           asset_name: Conduktor-macOS-${{ github.event.client_payload.version }}-intel.zip
           asset_content_type: application/zip
 
@@ -535,7 +535,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./conduktor-macos-arm/conduktor-${{ github.event.client_payload.version }}-apple-silicon.zip
+          asset_path: ./conduktor-macos-arm/conduktor-${{ github.event.client_payload.version }}.zip
           asset_name: Conduktor-macOS-${{ github.event.client_payload.version }}-apple-silicon.zip
           asset_content_type: application/zip
 

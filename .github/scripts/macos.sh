@@ -183,7 +183,7 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
   security delete-keychain build.keychain
 
   NOT=$(xcrun notarytool submit "$PKG" --wait --team-id 572B6PF39A --apple-id "$MACOS_SIGNING_USERNAME" --password "$MACOS_SIGNING_SPECIFIC_PWD" -f json)
-  # returns something like {"id":"43b6b432-cdec-4be5-9945-a9f618710c7c","status":"Invalid","message":"Processing complete"}
+  # returns something like {"id":"43b6b432-cdec-4be5-9945-a9f618710c7c","status":"Invalid","message":"Processing complete"} or "Accepted"
   # and even if it's invalid, it's still return 0 as exit code...
   echo "$NOT"
   REQUEST_ID=$(echo "$NOT" | jq -r '.id')
