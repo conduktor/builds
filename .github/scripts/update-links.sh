@@ -15,9 +15,15 @@ if $UPDATE_ONLY; then
 	#EXTENSION=dmg
 	#curl -sSf -o /dev/null 'https://api.rebrandly.com/v1/links/85cf14f89f2b4d5ea73cfc131ce7cba5' -XPOST -H "apikey: $API" -H 'Content-Type: application/json' -d"{\"title\": \"Conduktor ${SYSTEM} .${EXTENSION}\", \"destination\": \"https://github.com/conduktor/builds/releases/download/v${VERSION}/Conduktor-${VERSION}.${EXTENSION}\"}"
 
+	# Intel version
 	SYSTEM=macOS
 	EXTENSION=pkg
-	curl -sSf -o /dev/null 'https://api.rebrandly.com/v1/links/356b5a43bca647838d1f43b9e1fb4d01' -XPOST -H "apikey: $API" -H 'Content-Type: application/json' -d"{\"title\": \"Conduktor ${SYSTEM} .${EXTENSION}\", \"destination\": \"https://github.com/conduktor/builds/releases/download/v${VERSION}/Conduktor-${VERSION}.${EXTENSION}\"}"
+	curl -sSf -o /dev/null 'https://api.rebrandly.com/v1/links/356b5a43bca647838d1f43b9e1fb4d01' -XPOST -H "apikey: $API" -H 'Content-Type: application/json' -d"{\"title\": \"Conduktor ${SYSTEM} Intel .${EXTENSION}\", \"destination\": \"https://github.com/conduktor/builds/releases/download/v${VERSION}/Conduktor-${VERSION}-intel.${EXTENSION}\"}"
+
+	# Apple Silicon version
+	SYSTEM=macOS
+	EXTENSION=pkg
+	curl -sSf -o /dev/null 'https://api.rebrandly.com/v1/links/1f91615b53e1477691d21f873c0a2583' -XPOST -H "apikey: $API" -H 'Content-Type: application/json' -d"{\"title\": \"Conduktor ${SYSTEM} Apple Silicon.${EXTENSION}\", \"destination\": \"https://github.com/conduktor/builds/releases/download/v${VERSION}/Conduktor-${VERSION}-apple-silicon.${EXTENSION}\"}"
 
 	SYSTEM=macOS
 	EXTENSION=zip
