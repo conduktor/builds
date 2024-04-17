@@ -144,13 +144,27 @@ if [ "$MACOS_SIGNING_IDENTITY_PASSPHRASE" != "" ] && [ "$MACOS_SIGNING_IDENTITY_
               "$jar"
   done
 
+  # -type f: no symlink
+  # -force to overwrite existing signature (exists on on the JDK)
   echo "------------------------------------------------------------"
   echo "Signing our runtime..."
-  for runtime in $(find $APP/Contents/runtime/Contents/Home/lib -name "*.dylib") $(find $APP/Contents/runtime/ -type f -perm +111) $APP/Contents/runtime/; do
+  for runtime in $(find $APP/Contents/runtime/ -name "*.dylib" -type f); do
     echo "Signing $runtime..."
-    codesign --strict --keychain build.keychain --force --timestamp --verbose=4 --prefix "io.conduktor." \
-              --deep --options runtime --sign "$IDENTITY" "$runtime"
+    codesign --keychain build.keychain --timestamp --verbose=4 --prefix "io.conduktor." \
+             --force --options runtime --sign "$IDENTITY" "$runtime"
   done
+
+  echo "Signing runtime executables..."
+  for executable in $(find $APP/Contents/runtime/ -type f -perm +111); do
+    echo "Signing $executable..."
+    codesign --keychain build.keychain --timestamp --verbose=4 --prefix "io.conduktor." \
+             --force --options runtime --entitlements "$ENTITLEMENTS_PATH" --sign "$IDENTITY" "$executable"
+  done
+
+  echo "------------------------------------------------------------"
+  echo "Signing the global runtime (-deep)"
+  codesign --keychain build.keychain --timestamp --verbose=4 --prefix "io.conduktor." \
+              --force --deep --options runtime --entitlements "$ENTITLEMENTS_PATH" --sign "$IDENTITY" "$executable" "$APP/Contents/runtime/"
 
   echo "------------------------------------------------------------"
   echo "Signing the app itself"
