@@ -222,7 +222,7 @@ jobs:
           java-version: '17'
 
       - name: Download built distribution
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.1.7
         with:
           name: conduktor-macos-intel
 
@@ -259,7 +259,7 @@ jobs:
           java-version: '17'
 
       - name: Download built distribution
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.1.7
         with:
           name: conduktor-macos-arm
 
@@ -298,7 +298,7 @@ jobs:
           java-version: '17'
 
       - name: Download built distribution
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.1.7
         with:
           name: conduktor-linux
 
@@ -333,7 +333,7 @@ jobs:
           java-version: '17'
 
       - name: Download built distribution
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.1.7
         with:
           name: conduktor-windows
 
@@ -363,7 +363,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: windows
 
@@ -392,28 +392,28 @@ jobs:
         id: create_release_body
         working-directory: conduktor-desktop
 
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: conduktor-windows
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: conduktor-macos-intel
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: conduktor-macos-arm
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: conduktor-linux
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: macos-intel
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: macos-arm
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: linux
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: windows
 
