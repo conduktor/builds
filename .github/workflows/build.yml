@@ -57,7 +57,7 @@ jobs:
         run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace distZip
 
       - name: publish artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: conduktor-linux
           path: "./conduktor-desktop/desktop/build/distributions/conduktor-${{ github.event.client_payload.version }}.zip"
@@ -105,7 +105,7 @@ jobs:
         run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace distZip
 
       - name: publish artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: conduktor-windows
           path: "./conduktor-desktop/desktop/build/distributions/conduktor-${{ github.event.client_payload.version }}.zip"
@@ -154,7 +154,7 @@ jobs:
         run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace distZip
 
       - name: publish artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: conduktor-macos-intel
           path: "./conduktor-desktop/desktop/build/distributions/conduktor-${{ github.event.client_payload.version }}.zip"
@@ -203,7 +203,7 @@ jobs:
         run: echo "version=${{ github.event.client_payload.version }}" >> gradle.properties && ./gradlew --build-cache --stacktrace distZip
 
       - name: publish artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: conduktor-macos-arm
           path: "./conduktor-desktop/desktop/build/distributions/conduktor-${{ github.event.client_payload.version }}.zip"
@@ -222,7 +222,7 @@ jobs:
           java-version: '17'
 
       - name: Download built distribution
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: conduktor-macos-intel
 
@@ -242,7 +242,7 @@ jobs:
           mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}-intel.pkg macos-intel
 
       - name: Upload macOS .pkg & .dmg
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: macos-intel
           path: macos-intel
@@ -259,7 +259,7 @@ jobs:
           java-version: '17'
 
       - name: Download built distribution
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: conduktor-macos-arm
 
@@ -279,7 +279,7 @@ jobs:
           mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}-apple-silicon.pkg macos-arm
 
       - name: Upload macOS .pkg & .dmg
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: macos-arm
           path: macos-arm        
@@ -298,7 +298,7 @@ jobs:
           java-version: '17'
 
       - name: Download built distribution
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: conduktor-linux
 
@@ -314,7 +314,7 @@ jobs:
           mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}.rpm linux
 
       - name: Upload Linux .deb & .rpm
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: linux
           path: linux
@@ -333,7 +333,7 @@ jobs:
           java-version: '17'
 
       - name: Download built distribution
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: conduktor-windows
 
@@ -352,7 +352,7 @@ jobs:
           mv ${{ env.CDK_APP_NAME }}-${{ github.event.client_payload.version }}-single-user.msi windows
 
       - name: Upload Windows .msi
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: windows
           path: windows
@@ -363,14 +363,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4
         with:
           name: windows
 
       - run: .github\scripts\winsign-ev.ps1 ${{ github.event.client_payload.version }}
         shell: powershell
 
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v4
         with:
           name: windows
           path: windows
@@ -392,28 +392,28 @@ jobs:
         id: create_release_body
         working-directory: conduktor-desktop
 
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4
         with:
           name: conduktor-windows
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4
         with:
           name: conduktor-macos-intel
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4
         with:
           name: conduktor-macos-arm
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4
         with:
           name: conduktor-linux
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4
         with:
           name: macos-intel
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4
         with:
           name: macos-arm
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4
         with:
           name: linux
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4
         with:
           name: windows
 
